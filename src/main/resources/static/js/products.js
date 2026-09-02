@@ -400,13 +400,15 @@ function displayProducts() {
         const actionCell =
             document.createElement("td");
 
+        actionCell.className = "product-actions";
+
 
         const editButton =
             document.createElement("button");
 
         editButton.type = "button";
         editButton.className =
-            "table-action edit-product";
+            "table-action edit-button";
 
         editButton.textContent = "Edit";
 
@@ -426,7 +428,7 @@ function displayProducts() {
 
         deleteButton.type = "button";
         deleteButton.className =
-            "table-action delete-product";
+            "table-action delete-button";
 
         deleteButton.textContent = "Delete";
 
