@@ -43,8 +43,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const orderQuantity =
         document.getElementById("orderQuantity");
 
-    const orderPrice =
-        document.getElementById("orderPrice");
+    const addOrderItemButton =
+        document.getElementById("addOrderItemButton");
+
+    const orderItemsList =
+        document.getElementById("orderItemsList");
 
     const orderTotal =
         document.getElementById("orderTotal");
@@ -80,6 +83,9 @@ document.addEventListener("DOMContentLoaded", function () {
     let orders = [];
     let customers = [];
     let products = [];
+
+    // Multiple products in ONE order
+    let orderItems = [];
 
     // null = creating new order
     // number = editing existing order
@@ -204,54 +210,65 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             // ===============================
-            // ORDER ITEM
+            // LOAD ALL ORDER ITEMS
             // ===============================
 
-            const item =
+            orderItems = [];
+
+            if (
                 order.items &&
                 order.items.length > 0
-                    ? order.items[0]
-                    : null;
+            ) {
 
+                order.items.forEach(item => {
 
-            if (item) {
+                    if (!item.product) return;
 
-                // Product
-                if (
-                    orderProduct &&
-                    item.product
-                ) {
+                    const product =
+                        products.find(
+                            p =>
+                                Number(p.id) ===
+                                Number(item.product.id)
+                        );
 
-                    orderProduct.value =
-                        item.product.id;
-                }
+                    const unitPrice =
+                        Number(
+                            item.unitPrice ??
+                            product?.price ??
+                            0
+                        );
 
+                    const quantity =
+                        Number(
+                            item.quantity || 0
+                        );
 
-                // Quantity
-                if (orderQuantity) {
+                    orderItems.push({
+                        productId:
+                            Number(item.product.id),
 
-                    orderQuantity.value =
-                        item.quantity || 0;
-                }
+                        productName:
+                            item.product.name ||
+                            product?.name ||
+                            "-",
 
+                        quantity:
+                            quantity,
 
-                // Price
-                if (orderPrice) {
+                        unitPrice:
+                            unitPrice,
 
-                    orderPrice.value =
-                        item.unitPrice || 0;
-                }
+                        subtotal:
+                            quantity * unitPrice
+                    });
+                });
             }
+
+            renderOrderItems();
 
 
             // Total
-            if (orderTotal) {
-
-                orderTotal.value =
-                    Number(
-                        order.totalAmount || 0
-                    ).toFixed(2);
-            }
+            calculateOrderTotal();
 
 
             // Notes
@@ -298,6 +315,8 @@ document.addEventListener("DOMContentLoaded", function () {
         orderModal.classList.remove("show");
 
         editingOrderId = null;
+
+        orderItems = [];
     }
 
 
@@ -310,6 +329,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!orderForm) return;
 
         orderForm.reset();
+
+        // Clear selected products
+        orderItems = [];
+
+        if (orderItemsList) {
+            orderItemsList.innerHTML = "";
+        }
 
 
         if (orderDate) {
@@ -333,14 +359,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (orderTotal) {
 
             orderTotal.value =
-                "0";
-        }
-
-
-        if (orderPrice) {
-
-            orderPrice.value =
-                "";
+                "0.00";
         }
     }
 
@@ -352,9 +371,6 @@ document.addEventListener("DOMContentLoaded", function () {
     async function loadOrders() {
 
         try {
-
-            // IMPORTANT:
-            // New backend endpoint is /api/orders
 
             const response =
                 await fetch("/api/orders");
@@ -504,9 +520,6 @@ document.addEventListener("DOMContentLoaded", function () {
                                 : ""
                         );
 
-                    option.dataset.price =
-                        product.price || 0;
-
                     orderProduct.appendChild(
                         option
                     );
@@ -524,58 +537,234 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ===============================
-    // PRODUCT SELECT
+    // ADD ORDER ITEM
     // ===============================
 
-    if (orderProduct) {
+    if (addOrderItemButton) {
 
-        orderProduct.addEventListener(
-            "change",
+        addOrderItemButton.addEventListener(
+            "click",
             function () {
 
-                const selectedOption =
-                    this.options[
-                        this.selectedIndex
-                    ];
+                const productId =
+                    Number(orderProduct?.value);
 
-                if (!selectedOption) return;
-
-
-                const price =
-                    selectedOption.dataset.price;
+                const quantity =
+                    parseFloat(
+                        orderQuantity?.value || 0
+                    );
 
 
-                if (orderPrice) {
+                if (!productId) {
 
-                    orderPrice.value =
-                        price || "";
+                    alert(
+                        "Please select a product."
+                    );
+
+                    return;
                 }
 
 
-                calculateTotal();
+                if (!quantity || quantity <= 0) {
+
+                    alert(
+                        "Please enter a valid quantity."
+                    );
+
+                    return;
+                }
+
+
+                const product =
+                    products.find(
+                        p =>
+                            Number(p.id) ===
+                            productId
+                    );
+
+
+                if (!product) {
+
+                    alert(
+                        "Product not found."
+                    );
+
+                    return;
+                }
+
+
+                const unitPrice =
+                    Number(product.price || 0);
+
+
+                // Check if product already exists
+                const existingItem =
+                    orderItems.find(
+                        item =>
+                            Number(item.productId) ===
+                            productId
+                    );
+
+
+                if (existingItem) {
+
+                    existingItem.quantity =
+                        Number(existingItem.quantity) +
+                        quantity;
+
+                    existingItem.subtotal =
+                        existingItem.quantity *
+                        existingItem.unitPrice;
+
+                } else {
+
+                    orderItems.push({
+
+                        productId:
+                            productId,
+
+                        productName:
+                            product.name,
+
+                        quantity:
+                            quantity,
+
+                        unitPrice:
+                            unitPrice,
+
+                        subtotal:
+                            quantity * unitPrice
+                    });
+                }
+
+
+                renderOrderItems();
+
+                calculateOrderTotal();
+
+
+                // Reset product entry
+                if (orderProduct) {
+                    orderProduct.value = "";
+                }
+
+                if (orderQuantity) {
+                    orderQuantity.value = "";
+                }
             }
         );
     }
 
 
     // ===============================
-    // CALCULATE TOTAL
+    // RENDER ORDER ITEMS
     // ===============================
 
-    function calculateTotal() {
+    function renderOrderItems() {
 
-        const quantity =
-            parseFloat(
-                orderQuantity?.value || 0
-            );
+        if (!orderItemsList) return;
 
-        const price =
-            parseFloat(
-                orderPrice?.value || 0
-            );
+
+        if (orderItems.length === 0) {
+
+            orderItemsList.innerHTML = `
+                <div class="order-items-empty">
+                    No fish added yet.
+                </div>
+            `;
+
+            calculateOrderTotal();
+
+            return;
+        }
+
+
+        orderItemsList.innerHTML =
+            orderItems
+                .map((item, index) => {
+
+                    return `
+                        <div class="order-item-row">
+
+                            <div class="order-item-name">
+                                <strong>
+                                    ${item.productName}
+                                </strong>
+                            </div>
+
+                            <div class="order-item-quantity">
+                                ${item.quantity}
+                            </div>
+
+                            <div class="order-item-price">
+                                ₹${Number(
+                                    item.unitPrice
+                                ).toFixed(2)}
+                            </div>
+
+                            <div class="order-item-subtotal">
+                                ₹${Number(
+                                    item.subtotal
+                                ).toFixed(2)}
+                            </div>
+
+                            <button
+                                type="button"
+                                class="remove-order-item"
+                                data-index="${index}"
+                                title="Remove">
+
+                                ✕
+
+                            </button>
+
+                        </div>
+                    `;
+                })
+                .join("");
+
+
+        // Remove buttons
+        orderItemsList
+            .querySelectorAll(".remove-order-item")
+            .forEach(button => {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const index =
+                            Number(
+                                this.dataset.index
+                            );
+
+                        orderItems.splice(
+                            index,
+                            1
+                        );
+
+                        renderOrderItems();
+
+                        calculateOrderTotal();
+                    }
+                );
+            });
+    }
+
+
+    // ===============================
+    // CALCULATE ORDER TOTAL
+    // ===============================
+
+    function calculateOrderTotal() {
 
         const total =
-            quantity * price;
+            orderItems.reduce(
+                (sum, item) =>
+                    sum +
+                    Number(item.subtotal || 0),
+                0
+            );
 
 
         if (orderTotal) {
@@ -583,24 +772,6 @@ document.addEventListener("DOMContentLoaded", function () {
             orderTotal.value =
                 total.toFixed(2);
         }
-    }
-
-
-    if (orderQuantity) {
-
-        orderQuantity.addEventListener(
-            "input",
-            calculateTotal
-        );
-    }
-
-
-    if (orderPrice) {
-
-        orderPrice.addEventListener(
-            "input",
-            calculateTotal
-        );
     }
 
 
@@ -731,19 +902,29 @@ document.addEventListener("DOMContentLoaded", function () {
                         "Unknown";
 
 
-                    // New backend structure:
-                    // order.items[0].product
-                    const item =
+                    // SHOW ALL PRODUCTS
+                    const itemsText =
                         order.items &&
                         order.items.length > 0
-                            ? order.items[0]
-                            : null;
 
+                            ? order.items
+                                .map(item => {
 
-                    const productName =
-                        order.productName ||
-                        item?.product?.name ||
-                        "-";
+                                    const name =
+                                        item.product?.name ||
+                                        "-";
+
+                                    const quantity =
+                                        item.quantity || 0;
+
+                                    return `
+                                        ${name}
+                                        × ${quantity}
+                                    `;
+                                })
+                                .join("<br>")
+
+                            : "-";
 
 
                     const date =
@@ -751,10 +932,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             ? order.orderDate
                                 .split("T")[0]
                             : "-";
-
-
-                    const quantity =
-                        item?.quantity || 0;
 
 
                     const total =
@@ -783,8 +960,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             </td>
 
                             <td>
-                                ${productName}
-                                × ${quantity}
+                                ${itemsText}
                             </td>
 
                             <td>
@@ -967,28 +1143,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     orderCustomer.value;
 
 
-                const productId =
-                    orderProduct.value;
-
-
-                const quantity =
-                    parseFloat(
-                        orderQuantity.value
-                    );
-
-
-                const price =
-                    parseFloat(
-                        orderPrice.value
-                    );
-
-
-                const totalAmount =
-                    parseFloat(
-                        orderTotal.value
-                    );
-
-
                 // ===============================
                 // VALIDATION
                 // ===============================
@@ -1003,32 +1157,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                if (!productId) {
+                if (
+                    !orderItems ||
+                    orderItems.length === 0
+                ) {
 
                     alert(
-                        "Please select a product."
-                    );
-
-                    return;
-                }
-
-
-                if (!quantity ||
-                    quantity <= 0) {
-
-                    alert(
-                        "Please enter a valid quantity."
-                    );
-
-                    return;
-                }
-
-
-                if (isNaN(price) ||
-                    price < 0) {
-
-                    alert(
-                        "Please enter a valid price."
+                        "Please add at least one fish/product."
                     );
 
                     return;
@@ -1044,26 +1179,28 @@ document.addEventListener("DOMContentLoaded", function () {
                     customerId:
                         Number(customerId),
 
-                    productId:
-                        Number(productId),
-
                     orderDate:
                         orderDate.value,
-
-                    quantity:
-                        quantity,
-
-                    price:
-                        price,
-
-                    totalAmount:
-                        totalAmount,
 
                     status:
                         orderStatus.value,
 
                     notes:
-                        orderNotes.value.trim()
+                        orderNotes.value.trim(),
+
+                    items:
+                        orderItems.map(item => ({
+
+                            productId:
+                                Number(
+                                    item.productId
+                                ),
+
+                            quantity:
+                                Number(
+                                    item.quantity
+                                )
+                        }))
                 };
 
 
@@ -1368,4 +1505,3 @@ document.addEventListener("DOMContentLoaded", function () {
     loadOrders();
 
 });
-

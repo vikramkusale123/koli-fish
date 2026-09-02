@@ -1,5 +1,6 @@
 package com.kolifish.customer.service;
 
+import com.kolifish.customer.dto.OrderItemRequest;
 import com.kolifish.customer.dto.OrderRequest;
 import com.kolifish.customer.entity.Customer;
 import com.kolifish.customer.entity.Order;
@@ -47,23 +48,12 @@ public class OrderService {
                         new RuntimeException("Customer not found"));
 
 
-        // Validate product
-        if (request.getProductId() == null) {
-            throw new RuntimeException("Product ID is required");
-        }
-
-        Product product = productRepository
-                .findById(request.getProductId())
-                .orElseThrow(() ->
-                        new RuntimeException("Product not found"));
-
-
-        // Validate quantity
-        if (request.getQuantity() == null ||
-                request.getQuantity() <= 0) {
+        // Validate items
+        if (request.getItems() == null ||
+                request.getItems().isEmpty()) {
 
             throw new RuntimeException(
-                    "Quantity must be greater than zero");
+                    "At least one product is required");
         }
 
 
@@ -83,28 +73,67 @@ public class OrderService {
         }
 
 
-        // Create order item
-        OrderItem item = new OrderItem();
-
-        item.setOrder(order);
-        item.setProduct(product);
-        item.setQuantity(request.getQuantity());
+        double orderTotal = 0.0;
 
 
-        // Always use price from database
-        double unitPrice = product.getPrice();
+        // =====================================================
+        // CREATE ORDER ITEMS
+        // =====================================================
 
-        double subtotal =
-                request.getQuantity() * unitPrice;
+        for (OrderItemRequest itemRequest : request.getItems()) {
 
-        item.setUnitPrice(unitPrice);
-        item.setSubtotal(subtotal);
+            // Validate product
+            if (itemRequest.getProductId() == null) {
+
+                throw new RuntimeException(
+                        "Product ID is required");
+            }
+
+            Product product = productRepository
+                    .findById(itemRequest.getProductId())
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "Product not found"));
 
 
-        // Add item to order
-        order.getItems().add(item);
+            // Validate quantity
+            if (itemRequest.getQuantity() == null ||
+                    itemRequest.getQuantity() <= 0) {
 
-        order.setTotalAmount(subtotal);
+                throw new RuntimeException(
+                        "Quantity must be greater than zero");
+            }
+
+
+            // Create order item
+            OrderItem item = new OrderItem();
+
+            item.setOrder(order);
+            item.setProduct(product);
+            item.setQuantity(itemRequest.getQuantity());
+
+
+            // Always use price from database
+            double unitPrice = product.getPrice();
+
+            double subtotal =
+                    itemRequest.getQuantity() * unitPrice;
+
+            item.setUnitPrice(unitPrice);
+            item.setSubtotal(subtotal);
+
+
+            // Add item to order
+            order.getItems().add(item);
+
+
+            // Add to order total
+            orderTotal += subtotal;
+        }
+
+
+        // Set final order total
+        order.setTotalAmount(orderTotal);
 
 
         // Save
@@ -139,7 +168,9 @@ public class OrderService {
     // UPDATE ORDER
     // =========================================================
 
-    public Order updateOrder(Long id, OrderRequest request) {
+    public Order updateOrder(
+            Long id,
+            OrderRequest request) {
 
         // Find existing order
         Order order = orderRepository
@@ -153,93 +184,103 @@ public class OrderService {
         // -----------------------------------------------------
 
         if (request.getCustomerId() == null) {
-            throw new RuntimeException("Customer ID is required");
+
+            throw new RuntimeException(
+                    "Customer ID is required");
         }
 
         Customer customer = customerRepository
                 .findById(request.getCustomerId())
                 .orElseThrow(() ->
-                        new RuntimeException("Customer not found"));
+                        new RuntimeException(
+                                "Customer not found"));
 
         order.setCustomer(customer);
 
 
         // -----------------------------------------------------
-        // Validate product
+        // Validate items
         // -----------------------------------------------------
 
-        if (request.getProductId() == null) {
-            throw new RuntimeException("Product ID is required");
-        }
-
-        Product product = productRepository
-                .findById(request.getProductId())
-                .orElseThrow(() ->
-                        new RuntimeException("Product not found"));
-
-
-        // -----------------------------------------------------
-        // Validate quantity
-        // -----------------------------------------------------
-
-        if (request.getQuantity() == null ||
-                request.getQuantity() <= 0) {
+        if (request.getItems() == null ||
+                request.getItems().isEmpty()) {
 
             throw new RuntimeException(
-                    "Quantity must be greater than zero");
+                    "At least one product is required");
         }
 
 
         // -----------------------------------------------------
-        // Get existing order item
+        // Remove old items
         // -----------------------------------------------------
 
-        OrderItem item;
+        order.getItems().clear();
 
-        if (order.getItems() == null ||
-                order.getItems().isEmpty()) {
 
-            item = new OrderItem();
+        double orderTotal = 0.0;
+
+
+        // =====================================================
+        // CREATE UPDATED ORDER ITEMS
+        // =====================================================
+
+        for (OrderItemRequest itemRequest : request.getItems()) {
+
+            // Validate product
+            if (itemRequest.getProductId() == null) {
+
+                throw new RuntimeException(
+                        "Product ID is required");
+            }
+
+            Product product = productRepository
+                    .findById(itemRequest.getProductId())
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "Product not found"));
+
+
+            // Validate quantity
+            if (itemRequest.getQuantity() == null ||
+                    itemRequest.getQuantity() <= 0) {
+
+                throw new RuntimeException(
+                        "Quantity must be greater than zero");
+            }
+
+
+            // Create new order item
+            OrderItem item = new OrderItem();
 
             item.setOrder(order);
+            item.setProduct(product);
+            item.setQuantity(itemRequest.getQuantity());
 
+
+            // Get latest product price
+            double unitPrice = product.getPrice();
+
+            double subtotal =
+                    itemRequest.getQuantity() * unitPrice;
+
+            item.setUnitPrice(unitPrice);
+            item.setSubtotal(subtotal);
+
+
+            // Add item
             order.getItems().add(item);
 
-        } else {
 
-            // Currently one product per order
-            item = order.getItems().get(0);
+            // Add subtotal to order total
+            orderTotal += subtotal;
         }
-
-
-        // -----------------------------------------------------
-        // Update product and quantity
-        // -----------------------------------------------------
-
-        item.setProduct(product);
-
-        item.setQuantity(request.getQuantity());
-
-
-        // -----------------------------------------------------
-        // Get latest product price from database
-        // -----------------------------------------------------
-
-        double unitPrice = product.getPrice();
-
-        double subtotal =
-                request.getQuantity() * unitPrice;
-
-        item.setUnitPrice(unitPrice);
-
-        item.setSubtotal(subtotal);
 
 
         // -----------------------------------------------------
         // Update order total
         // -----------------------------------------------------
 
-        order.setTotalAmount(subtotal);
+        order.setTotalAmount(orderTotal);
 
 
         // -----------------------------------------------------
@@ -280,4 +321,3 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 }
-

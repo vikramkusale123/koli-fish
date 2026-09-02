@@ -129,6 +129,7 @@
 
 
             <!-- SETTINGS -->
+
             <div class="menu-item disabled-menu">
                 <span>⚙</span>
                 Settings
@@ -706,63 +707,58 @@
 
 
 
-                <!-- PRODUCT -->
+                <!-- ================= ORDER ITEMS ================= -->
 
-                <div class="form-group">
-
-                    <label>
-                        Product *
-                    </label>
-
-                    <select
-                            id="orderProduct"
-                            required>
-
-                        <option value="">
-                            Select Product
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-
-                <!-- QUANTITY -->
-
-                <div class="form-group">
+                <div class="form-group full">
 
                     <label>
-                        Quantity *
+                        Order Items *
                     </label>
 
-                    <input
-                            type="number"
-                            id="orderQuantity"
-                            placeholder="Enter quantity"
-                            min="1"
-                            step="1"
-                            required>
 
-                </div>
+                    <div class="order-item-entry">
 
 
+                        <!-- PRODUCT -->
 
-                <!-- PRICE -->
+                        <select id="orderProduct">
 
-                <div class="form-group">
+                            <option value="">
+                                Select Product
+                            </option>
 
-                    <label>
-                        Price *
-                    </label>
+                        </select>
 
-                    <input
-                            type="number"
-                            id="orderPrice"
-                            placeholder="Enter price"
-                            min="0"
-                            step="0.01"
-                            required>
+
+                        <!-- QUANTITY -->
+
+                        <input
+                                type="number"
+                                id="orderQuantity"
+                                placeholder="Enter quantity"
+                                min="0.1"
+                                step="0.1">
+
+
+                        <!-- ADD FISH -->
+
+                        <button
+                                type="button"
+                                class="primary-button"
+                                id="addOrderItemButton">
+
+                            + Add Fish
+
+                        </button>
+
+
+                    </div>
+
+
+                    <!-- SELECTED PRODUCTS -->
+
+                    <div id="orderItemsList"></div>
+
 
                 </div>
 
@@ -779,7 +775,7 @@
                     <input
                             type="number"
                             id="orderTotal"
-                            value="0"
+                            value="0.00"
                             readonly>
 
                 </div>
@@ -797,8 +793,7 @@
                     <textarea
                             id="orderNotes"
                             placeholder="Add order notes"
-                            rows="3">
-                    </textarea>
+                            rows="3"></textarea>
 
                 </div>
 
@@ -850,4 +845,3 @@
 </body>
 
 </html>
-```
