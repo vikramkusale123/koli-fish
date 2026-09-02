@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Koli Fish | Dashboard</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <!-- BRAND -->
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🐟
+            </div>
+
+            <div>
+                <h2>KOLI FISH</h2>
+                <span>Management</span>
+            </div>
+
+        </div>
+
+
+        <!-- MAIN MENU -->
+
+        <div class="menu-title">
+            MAIN MENU
+        </div>
+
+
+        <nav>
+
+            <!-- DASHBOARD -->
+
+            <a href="/index.html" class="menu-item active">
+                <span>▦</span>
+                Dashboard
+            </a>
+
+
+            <!-- CUSTOMERS -->
+
+            <a href="/pages/customers.html" class="menu-item">
+                <span>👥</span>
+                Customers
+            </a>
+
+
+            <!-- ORDERS -->
+
+            <a href="/pages/orders.html" class="menu-item">
+                <span>🧾</span>
+                Orders
+            </a>
+
+
+            <!-- PRODUCTS -->
+
+            <a href="/pages/products.html" class="menu-item">
+                <span>🐟</span>
+                Products
+            </a>
+
+
+            <!-- AREAS -->
+
+            <a href="/pages/areas.html" class="menu-item">
+                <span>📍</span>
+                Areas
+            </a>
+
+
+            <!-- ANALYTICS -->
+
+            <div class="menu-title">
+                ANALYTICS
+            </div>
+
+
+            <!-- REPORTS -->
+
+            <a href="/pages/reports.html" class="menu-item">
+                <span>📊</span>
+                Reports
+            </a>
+
+
+            <!-- SETTINGS -->
+
+            <a href="/pages/settings.html" class="menu-item">
+                <span>⚙</span>
+                Settings
+            </a>
+
+        </nav>
+
+
+        <!-- SIDEBAR BOTTOM -->
+
+        <div class="sidebar-bottom">
+
+            <!-- HELP -->
+
+            <div class="help-box">
+
+                <div class="help-icon">
+                    ?
+                </div>
+
+                <div>
+                    <strong>
+                        Need help?
+                    </strong>
+
+                    <p>
+                        Contact support
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- USER -->
+
+            <div class="user-box">
+
+                <div class="avatar">
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong>
+                        Admin
+                    </strong>
+
+                    <span>
+                        Administrator
+                    </span>
+
+                </div>
+
+
+                <span class="more">
+                    ⋮
+                </span>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="main">
+
+
+        <!-- ================= TOP BAR ================= -->
+
+        <header class="topbar">
+
+            <div class="search">
+
+                <span>
+                    ⌕
+                </span>
+
+                <input
+                        type="text"
+                        placeholder="Search customers, orders..."
+                >
+
+                <kbd>
+                    ⌘ K
+                </kbd>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <button class="icon-button">
+
+                    🔔
+
+                    <span class="notification"></span>
+
+                </button>
+
+
+                <div class="date">
+                    Saturday, 29 Aug 2026
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ================= CONTENT ================= -->
+
+        <section class="content">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="page-header">
+
+                <div>
+
+                    <h1 id="greeting">
+                        Good morning, Admin 👋
+                    </h1>
+
+                    <p>
+                        Here's what's happening with your business today.
+                    </p>
+
+                </div>
+
+
+                <button class="primary-button">
+                    + New Order
+                </button>
+
+            </div>
+
+
+
+            <!-- ================= STATISTICS ================= -->
+
+            <div class="stats-grid">
+
+
+                <!-- CUSTOMERS -->
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <span class="stat-title">
+                                Total Customers
+                            </span>
+
+                            <h2 id="customerCount">
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon customer">
+                            👥
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-footer positive">
+
+                        ↑ 12.5%
+
+                        <span>
+                            vs last month
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ORDERS -->
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <span class="stat-title">
+                                Total Orders
+                            </span>
+
+                            <h2 id="orderCount">
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon order">
+                            🧾
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-footer positive">
+
+                        ↑ 8.2%
+
+                        <span>
+                            vs last month
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PRODUCTS -->
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <span class="stat-title">
+                                Total Products
+                            </span>
+
+                            <h2 id="productCount">
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon product">
+                            🐟
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-footer">
+
+                        Active products
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SALES -->
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <span class="stat-title">
+                                Total Sales
+                            </span>
+
+                            <h2 id="salesCount">
+                                ₹0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon sales">
+                            ₹
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-footer positive">
+
+                        ↑ 15.4%
+
+                        <span>
+                            vs last month
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ================= CHARTS ================= -->
+
+            <div class="charts-grid">
+
+
+                <!-- SALES CHART -->
+
+                <div class="panel sales-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h3>
+                                Sales Overview
+                            </h3>
+
+                            <p>
+                                Monthly sales performance
+                            </p>
+
+                        </div>
+
+
+                        <select>
+
+                            <option>
+                                Last 7 months
+                            </option>
+
+                            <option>
+                                Last 30 days
+                            </option>
+
+                            <option>
+                                This year
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="chart-container">
+
+                        <canvas id="salesChart"></canvas>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- FISH SALES -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h3>
+                                Fish Sales
+                            </h3>
+
+                            <p>
+                                Products sold
+                            </p>
+
+                        </div>
+
+
+                        <button
+                                class="view-button"
+                                onclick="window.location.href='/pages/products.html'">
+
+                            View all
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="pie-container">
+
+                        <canvas id="fishChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ================= RECENT ORDERS ================= -->
+
+            <div class="panel orders-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h3>
+                            Recent Orders
+                        </h3>
+
+                        <p>
+                            Latest customer orders
+                        </p>
+
+                    </div>
+
+
+                    <button
+                            class="view-button"
+                            onclick="window.location.href='/pages/orders.html'">
+
+                        View all orders →
+
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                ORDER
+                            </th>
+
+                            <th>
+                                CUSTOMER
+                            </th>
+
+                            <th>
+                                AREA
+                            </th>
+
+                            <th>
+                                PRODUCT
+                            </th>
+
+                            <th>
+                                AMOUNT
+                            </th>
+
+                            <th>
+                                STATUS
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody id="ordersTable">
+
+                        <tr>
+
+                            <td
+                                    colspan="6"
+                                    class="empty">
+
+                                No orders yet
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+
+
+<!-- ================= DASHBOARD JAVASCRIPT ================= -->
+
+<script src="/js/dashboard.js"></script>
+
+</body>
+
+</html>

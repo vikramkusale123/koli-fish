@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Koli Fish | Customers</title>
+
+    <link rel="stylesheet"
+          href="../css/style.css">
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🐟
+            </div>
+
+            <div>
+
+                <h2>KOLI FISH</h2>
+
+                <span>
+                    Management
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="menu-title">
+            MAIN MENU
+        </div>
+
+
+        <nav>
+
+
+            <!-- DASHBOARD -->
+
+            <a href="/index.html"
+               class="menu-item">
+
+                <span>▦</span>
+
+                Dashboard
+
+            </a>
+
+
+            <!-- CUSTOMERS -->
+
+            <a href="/pages/customers.html"
+               class="menu-item active">
+
+                <span>👥</span>
+
+                Customers
+
+            </a>
+
+
+            <!-- ORDERS -->
+
+            <a href="/pages/orders.html"
+               class="menu-item">
+
+                <span>🧾</span>
+
+                Orders
+
+            </a>
+
+
+            <!-- PRODUCTS -->
+
+            <a href="/pages/products.html"
+               class="menu-item">
+
+                <span>🐟</span>
+
+                Products
+
+            </a>
+
+
+            <!-- AREAS -->
+
+            <a href="/pages/areas.html"
+               class="menu-item">
+
+                <span>📍</span>
+
+                Areas
+
+            </a>
+
+
+            <!-- ANALYTICS -->
+
+            <div class="menu-title">
+                ANALYTICS
+            </div>
+
+
+            <!-- REPORTS -->
+
+            <a href="/pages/reports.html"
+               class="menu-item">
+
+                <span>📊</span>
+
+                Reports
+
+            </a>
+
+
+            <!-- SETTINGS -->
+
+            <a href="/pages/settings.html"
+               class="menu-item">
+
+                <span>⚙</span>
+
+                Settings
+
+            </a>
+
+
+        </nav>
+
+
+        <!-- ================= SIDEBAR BOTTOM ================= -->
+
+        <div class="sidebar-bottom">
+
+
+            <div class="help-box">
+
+                <div class="help-icon">
+                    ?
+                </div>
+
+                <div>
+
+                    <strong>
+                        Need help?
+                    </strong>
+
+                    <p>
+                        Contact support
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="user-box">
+
+
+                <div class="avatar">
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong>
+                        Admin
+                    </strong>
+
+                    <span>
+                        Administrator
+                    </span>
+
+                </div>
+
+
+                <span class="more">
+                    ⋮
+                </span>
+
+
+            </div>
+
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- ================= TOP BAR ================= -->
+
+        <header class="topbar">
+
+
+            <div class="search">
+
+                <span>
+                    ⌕
+                </span>
+
+
+                <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search customers..."
+                >
+
+            </div>
+
+
+            <div class="top-actions">
+
+
+                <button class="icon-button">
+
+                    🔔
+
+                    <span class="notification">
+                    </span>
+
+                </button>
+
+
+                <div class="date">
+
+                    Saturday, 29 Aug 2026
+
+                </div>
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- ================= CONTENT ================= -->
+
+        <section class="content">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="page-header">
+
+
+                <div>
+
+                    <h1>
+                        Customers
+                    </h1>
+
+                    <p>
+                        Manage your Koli Fish customers
+                    </p>
+
+                </div>
+
+
+                <button
+                        class="primary-button"
+                        id="addCustomerButton">
+
+                    + Add Customer
+
+                </button>
+
+
+            </div>
+
+
+
+            <!-- ================= CUSTOMER STATS ================= -->
+
+            <div class="stats-grid customer-stats">
+
+
+                <!-- TOTAL CUSTOMERS -->
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <span class="stat-title">
+                                Total Customers
+                            </span>
+
+                            <h2 id="totalCustomers">
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon customer">
+                            👥
+                        </div>
+
+                    </div>
+
+                    <div class="stat-footer">
+                        All registered customers
+                    </div>
+
+                </div>
+
+
+
+                <!-- ACTIVE CUSTOMERS -->
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <span class="stat-title">
+                                Active Customers
+                            </span>
+
+                            <h2 id="activeCustomers">
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon product">
+                            ✓
+                        </div>
+
+                    </div>
+
+                    <div class="stat-footer">
+                        Currently active
+                    </div>
+
+                </div>
+
+
+
+                <!-- AREAS -->
+
+                <div class="stat-card">
+
+                    <div class="stat-top">
+
+                        <div>
+
+                            <span class="stat-title">
+                                Areas Covered
+                            </span>
+
+                            <h2 id="areaCount">
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon sales">
+                            📍
+                        </div>
+
+                    </div>
+
+                    <div class="stat-footer">
+                        Customer locations
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ================= CUSTOMER TABLE ================= -->
+
+            <div class="panel">
+
+
+                <div class="panel-header">
+
+
+                    <div>
+
+                        <h3>
+                            Customer List
+                        </h3>
+
+                        <p>
+                            View and manage all customers
+                        </p>
+
+                    </div>
+
+
+                    <div class="table-actions">
+
+
+                        <select id="areaFilter">
+
+                            <option value="">
+                                All Areas
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- TABLE -->
+
+                <div class="table-wrapper">
+
+
+                    <table>
+
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                CUSTOMER
+                            </th>
+
+                            <th>
+                                PHONE
+                            </th>
+
+                            <th>
+                                EMAIL
+                            </th>
+
+                            <th>
+                                AREA
+                            </th>
+
+                            <th>
+                                ORDERS
+                            </th>
+
+                            <th>
+                                ACTION
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody id="customerTable">
+
+
+                        <tr>
+
+                            <td
+                                    colspan="6"
+                                    class="empty">
+
+                                <div class="empty-icon">
+                                    👥
+                                </div>
+
+                                <strong>
+                                    No customers yet
+                                </strong>
+
+                                <p>
+                                    Add your first customer to get started.
+                                </p>
+
+                                <button
+                                        class="primary-button empty-button"
+                                        id="emptyAddButton">
+
+                                    + Add Customer
+
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- ================= ADD CUSTOMER MODAL ================= -->
+
+<div
+        class="modal-overlay"
+        id="customerModal">
+
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+
+            <div>
+
+                <h2>
+                    Add New Customer
+                </h2>
+
+                <p>
+                    Enter customer information
+                </p>
+
+            </div>
+
+
+            <button
+                    class="modal-close"
+                    id="closeModal">
+
+                ×
+
+            </button>
+
+
+        </div>
+
+
+
+        <form id="customerForm">
+
+
+            <div class="form-grid">
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Full Name *
+                    </label>
+
+                    <input
+                            type="text"
+                            id="customerName"
+                            placeholder="Enter customer name"
+                            required
+                    >
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label>
+                        Mobile Number *
+                    </label>
+
+                    <input
+                            type="tel"
+                            id="customerPhone"
+                            placeholder="Enter mobile number"
+                            required
+                    >
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label>
+                        Email
+                    </label>
+
+                    <input
+                            type="email"
+                            id="customerEmail"
+                            placeholder="Enter email address"
+                    >
+
+                </div>
+
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Address *
+                    </label>
+
+                    <textarea
+                            id="customerAddress"
+                            placeholder="Enter complete address"
+                            rows="3"
+                            required>
+                    </textarea>
+
+                </div>
+
+
+
+                <div class="form-group full">
+
+                    <label>
+                        Area *
+                    </label>
+
+                    <select
+                            id="customerArea"
+                            required>
+
+                        <option value="">
+                            Select Area
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="modal-footer">
+
+
+                <button
+                        type="button"
+                        class="secondary-button"
+                        id="cancelButton">
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                        type="submit"
+                        class="primary-button">
+
+                    Save Customer
+
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script src="../js/customers.js"></script>
+
+
+</body>
+
+</html>

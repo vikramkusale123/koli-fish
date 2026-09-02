@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Koli Fish | Areas</title>
+
+    <link rel="stylesheet"
+          href="../css/style.css">
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar">
+
+
+        <!-- BRAND -->
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🐟
+            </div>
+
+            <div>
+
+                <h2>KOLI FISH</h2>
+
+                <span>
+                    Management
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- MAIN MENU -->
+
+        <div class="menu-title">
+            MAIN MENU
+        </div>
+
+
+        <nav>
+
+
+            <!-- DASHBOARD -->
+
+            <a href="/index.html"
+               class="menu-item">
+
+                <span>▦</span>
+
+                Dashboard
+
+            </a>
+
+
+            <!-- CUSTOMERS -->
+
+            <a href="/pages/customers.html"
+               class="menu-item">
+
+                <span>👥</span>
+
+                Customers
+
+            </a>
+
+
+            <!-- ORDERS -->
+
+            <a href="/pages/orders.html"
+               class="menu-item">
+
+                <span>🧾</span>
+
+                Orders
+
+            </a>
+
+
+            <!-- PRODUCTS -->
+
+            <a href="/pages/products.html"
+               class="menu-item">
+
+                <span>🐟</span>
+
+                Products
+
+            </a>
+
+
+            <!-- AREAS -->
+
+            <a href="/pages/areas.html"
+               class="menu-item active">
+
+                <span>📍</span>
+
+                Areas
+
+            </a>
+
+
+            <!-- ANALYTICS -->
+
+            <div class="menu-title">
+                ANALYTICS
+            </div>
+
+
+            <!-- REPORTS -->
+
+            <a href="/pages/reports.html"
+               class="menu-item">
+
+                <span>📊</span>
+
+                Reports
+
+            </a>
+
+
+            <!-- SETTINGS -->
+
+            <a href="/pages/settings.html"
+               class="menu-item">
+
+                <span>⚙</span>
+
+                Settings
+
+            </a>
+
+        </nav>
+
+
+        <!-- =================================================
+             SIDEBAR BOTTOM
+             ================================================= -->
+
+        <div class="sidebar-bottom">
+
+
+            <!-- HELP -->
+
+            <div class="help-box">
+
+                <div class="help-icon">
+                    ?
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Need help?
+                    </strong>
+
+                    <p>
+                        Contact support
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- USER -->
+
+            <div class="user-box">
+
+
+                <div class="avatar">
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong>
+                        Admin
+                    </strong>
+
+                    <span>
+                        Administrator
+                    </span>
+
+                </div>
+
+
+                <span class="more">
+                    ⋮
+                </span>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <main class="main">
+
+
+        <!-- =================================================
+             TOP BAR
+             ================================================= -->
+
+        <header class="topbar">
+
+
+            <!-- SEARCH -->
+
+            <div class="search">
+
+                <span>
+                    ⌕
+                </span>
+
+
+                <input
+                        type="text"
+                        id="areaSearch"
+                        placeholder="Search areas..."
+                        autocomplete="off"
+                >
+
+            </div>
+
+
+            <!-- TOP ACTIONS -->
+
+            <div class="top-actions">
+
+
+                <button
+                        type="button"
+                        class="icon-button">
+
+                    🔔
+
+                </button>
+
+
+                <div class="date">
+
+                    Saturday, 29 Aug 2026
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
+
+        <section class="content">
+
+
+            <!-- =================================================
+                 PAGE HEADER
+                 ================================================= -->
+
+            <div class="page-header">
+
+
+                <div>
+
+                    <h1>
+                        Areas
+                    </h1>
+
+
+                    <p>
+                        Manage your fish delivery areas
+                    </p>
+
+                </div>
+
+
+                <button
+                        type="button"
+                        class="primary-button"
+                        id="addAreaButton">
+
+                    + Add Area
+
+                </button>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 STATISTICS
+                 ================================================= -->
+
+            <div class="stats-grid customer-stats">
+
+
+                <!-- TOTAL AREAS -->
+
+                <div class="stat-card">
+
+
+                    <div class="stat-top">
+
+
+                        <div>
+
+                            <span class="stat-title">
+                                Total Areas
+                            </span>
+
+
+                            <h2 id="totalAreas">
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon sales">
+                            📍
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-footer">
+
+                        Delivery locations
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CUSTOMERS -->
+
+                <div class="stat-card">
+
+
+                    <div class="stat-top">
+
+
+                        <div>
+
+                            <span class="stat-title">
+                                Customers
+                            </span>
+
+
+                            <h2 id="totalCustomers">
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon customer">
+                            👥
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-footer">
+
+                        Customers across all areas
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ACTIVE AREAS -->
+
+                <div class="stat-card">
+
+
+                    <div class="stat-top">
+
+
+                        <div>
+
+                            <span class="stat-title">
+                                Active Areas
+                            </span>
+
+
+                            <h2 id="activeAreas">
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div class="stat-icon product">
+                            ✓
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-footer">
+
+                        Currently available
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 DELIVERY AREAS PANEL
+                 ================================================= -->
+
+            <div class="panel area-panel">
+
+
+                <!-- PANEL HEADER -->
+
+                <div class="panel-header">
+
+
+                    <div>
+
+                        <h3>
+                            Delivery Areas
+                        </h3>
+
+
+                        <p>
+                            Areas where Koli Fish delivers
+                        </p>
+
+                    </div>
+
+
+                    <!-- SECONDARY SEARCH -->
+
+                    <div class="area-search">
+
+                        <span>
+                            ⌕
+                        </span>
+
+
+                        <input
+                                type="text"
+                                id="areaSearchSecondary"
+                                placeholder="Search areas..."
+                                autocomplete="off"
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     AREA TABLE
+                     ================================================= -->
+
+                <div class="area-table-wrapper">
+
+
+                    <table class="area-table">
+
+
+                        <!-- TABLE HEADER -->
+
+                        <thead>
+
+                        <tr>
+
+                            <th>
+                                AREA NAME
+                            </th>
+
+
+                            <th>
+                                CUSTOMERS
+                            </th>
+
+
+                            <th>
+                                STATUS
+                            </th>
+
+
+                            <th>
+                                ACTIONS
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <!-- TABLE BODY -->
+
+                        <tbody id="areaTable">
+
+                        <!-- JavaScript inserts areas here -->
+
+                        </tbody>
+
+
+                    </table>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     TABLE FOOTER
+                     ================================================= -->
+
+                <div class="area-table-footer">
+
+
+                    <span id="showingCount">
+                        Showing 0 areas
+                    </span>
+
+
+                    <div class="pagination">
+
+
+                        <button
+                                type="button"
+                                disabled>
+
+                            ‹
+
+                        </button>
+
+
+                        <button
+                                type="button"
+                                class="current">
+
+                            1
+
+                        </button>
+
+
+                        <button
+                                type="button"
+                                disabled>
+
+                            ›
+
+                        </button>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+
+
+<!-- =========================================================
+     ADD AREA MODAL
+     ========================================================= -->
+
+<div
+        class="modal-overlay"
+        id="areaModal">
+
+
+    <div class="modal">
+
+
+        <!-- =================================================
+             MODAL HEADER
+             ================================================= -->
+
+        <div class="modal-header">
+
+
+            <div>
+
+                <h2>
+                    Add New Area
+                </h2>
+
+
+                <p>
+                    Create a delivery area
+                </p>
+
+            </div>
+
+
+            <button
+                    type="button"
+                    class="modal-close"
+                    id="closeAreaModal">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+
+        <!-- =================================================
+             AREA FORM
+             ================================================= -->
+
+        <form id="areaForm">
+
+
+            <div class="form-grid">
+
+
+                <!-- AREA NAME -->
+
+                <div class="form-group full">
+
+
+                    <label for="areaName">
+
+                        Area Name *
+
+                    </label>
+
+
+                    <input
+                            type="text"
+                            id="areaName"
+                            name="areaName"
+                            placeholder="Example: Kothrud"
+                            autocomplete="off"
+                            required
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 MODAL FOOTER
+                 ================================================= -->
+
+            <div class="modal-footer">
+
+
+                <button
+                        type="button"
+                        class="secondary-button"
+                        id="cancelAreaButton">
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                        type="submit"
+                        class="primary-button">
+
+                    Save Area
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     AREAS JAVASCRIPT
+     ========================================================= -->
+
+<script src="../js/areas.js"></script>
+
+
+</body>
+
+</html>
