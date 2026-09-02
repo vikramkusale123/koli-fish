@@ -1,21 +1,26 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    ```
     <title>Koli Fish | Dashboard</title>
 
     <link rel="stylesheet" href="/css/style.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    ```
+
 </head>
 
 <body>
 
 <div class="app">
 
+    ```
     <!-- ================= SIDEBAR ================= -->
 
     <aside class="sidebar">
@@ -41,7 +46,6 @@
         <div class="menu-title">
             MAIN MENU
         </div>
-
 
         <nav>
 
@@ -151,22 +155,21 @@
                     </strong>
 
                     <span>
-                        Administrator
-                    </span>
+                    Administrator
+                </span>
 
                 </div>
 
 
                 <span class="more">
-                    ⋮
-                </span>
+                ⋮
+            </span>
 
             </div>
 
         </div>
 
     </aside>
-
 
 
     <!-- ================= MAIN CONTENT ================= -->
@@ -180,9 +183,9 @@
 
             <div class="search">
 
-                <span>
-                    ⌕
-                </span>
+            <span>
+                ⌕
+            </span>
 
                 <input
                         type="text"
@@ -216,7 +219,6 @@
         </header>
 
 
-
         <!-- ================= CONTENT ================= -->
 
         <section class="content">
@@ -238,9 +240,7 @@
 
                 </div>
 
-
             </div>
-
 
 
             <!-- ================= STATISTICS ================= -->
@@ -256,9 +256,9 @@
 
                         <div>
 
-                            <span class="stat-title">
-                                Total Customers
-                            </span>
+                        <span class="stat-title">
+                            Total Customers
+                        </span>
 
                             <h2 id="customerCount">
                                 0
@@ -279,13 +279,12 @@
                         ↑ 12.5%
 
                         <span>
-                            vs last month
-                        </span>
+                        vs last month
+                    </span>
 
                     </div>
 
                 </div>
-
 
 
                 <!-- ORDERS -->
@@ -296,9 +295,9 @@
 
                         <div>
 
-                            <span class="stat-title">
-                                Total Orders
-                            </span>
+                        <span class="stat-title">
+                            Total Orders
+                        </span>
 
                             <h2 id="orderCount">
                                 0
@@ -319,13 +318,12 @@
                         ↑ 8.2%
 
                         <span>
-                            vs last month
-                        </span>
+                        vs last month
+                    </span>
 
                     </div>
 
                 </div>
-
 
 
                 <!-- PRODUCTS -->
@@ -336,9 +334,9 @@
 
                         <div>
 
-                            <span class="stat-title">
-                                Total Products
-                            </span>
+                        <span class="stat-title">
+                            Total Products
+                        </span>
 
                             <h2 id="productCount">
                                 0
@@ -355,13 +353,10 @@
 
 
                     <div class="stat-footer">
-
                         Active products
-
                     </div>
 
                 </div>
-
 
 
                 <!-- SALES -->
@@ -372,9 +367,9 @@
 
                         <div>
 
-                            <span class="stat-title">
-                                Total Sales
-                            </span>
+                        <span class="stat-title">
+                            Total Sales
+                        </span>
 
                             <h2 id="salesCount">
                                 ₹0
@@ -395,15 +390,14 @@
                         ↑ 15.4%
 
                         <span>
-                            vs last month
-                        </span>
+                        vs last month
+                    </span>
 
                     </div>
 
                 </div>
 
             </div>
-
 
 
             <!-- ================= CHARTS ================= -->
@@ -458,7 +452,6 @@
                 </div>
 
 
-
                 <!-- FISH SALES -->
 
                 <div class="panel">
@@ -497,8 +490,46 @@
 
                 </div>
 
-            </div>
 
+                <!-- CUSTOMER DISTRIBUTION -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h3>
+                                Customer Distribution
+                            </h3>
+
+                            <p>
+                                Customers by area
+                            </p>
+
+                        </div>
+
+
+                        <button
+                                class="view-button"
+                                onclick="window.location.href='/pages/customers.html'">
+
+                            View customers
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="pie-container">
+
+                        <canvas id="customerAreaChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
 
 
             <!-- ================= RECENT ORDERS ================= -->
@@ -594,10 +625,9 @@
         </section>
 
     </main>
+    ```
 
 </div>
-
-
 
 <!-- ================= DASHBOARD JAVASCRIPT ================= -->
 
