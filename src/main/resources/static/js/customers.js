@@ -544,18 +544,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
 
 
-                <div class="modal-footer">
 
-                    <button
-                        type="button"
-                        class="secondary-button"
-                        id="closeCustomerView">
-
-                        Close
-
-                    </button>
-
-                </div>
 
             </div>
 
