@@ -1,6 +1,7 @@
 package com.kolifish.customer.entity;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,19 @@ public class Order {
     @Column(nullable = false)
     private String status = "PENDING";
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    // WhatsApp notification tracking
+    @Column(name = "processing_whatsapp_sent", nullable = false)
+    private Boolean processingWhatsappSent = false;
+
+    @Column(name = "completed_whatsapp_sent", nullable = false)
+    private Boolean completedWhatsappSent = false;
+
+    // Order items
+    @OneToMany(
+            mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<OrderItem> items = new ArrayList<>();
 
     public Order() {
@@ -34,8 +47,29 @@ public class Order {
 
     @PrePersist
     protected void onCreate() {
-        orderDate = LocalDateTime.now();
+
+        if (orderDate == null) {
+            orderDate = LocalDateTime.now();
+        }
+
+        if (status == null || status.isBlank()) {
+            status = "PENDING";
+        }
+
+        if (totalAmount == null) {
+            totalAmount = 0.0;
+        }
+
+        if (processingWhatsappSent == null) {
+            processingWhatsappSent = false;
+        }
+
+        if (completedWhatsappSent == null) {
+            completedWhatsappSent = false;
+        }
     }
+
+    // Getters and setters
 
     public Long getId() {
         return id;
@@ -51,6 +85,10 @@ public class Order {
 
     public LocalDateTime getOrderDate() {
         return orderDate;
+    }
+
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = orderDate;
     }
 
     public Double getTotalAmount() {
@@ -74,6 +112,29 @@ public class Order {
     }
 
     public void setItems(List<OrderItem> items) {
-        this.items = items;
+        this.items.clear();
+
+        if (items != null) {
+            for (OrderItem item : items) {
+                item.setOrder(this);
+                this.items.add(item);
+            }
+        }
+    }
+
+    public Boolean getProcessingWhatsappSent() {
+        return processingWhatsappSent;
+    }
+
+    public void setProcessingWhatsappSent(Boolean processingWhatsappSent) {
+        this.processingWhatsappSent = processingWhatsappSent;
+    }
+
+    public Boolean getCompletedWhatsappSent() {
+        return completedWhatsappSent;
+    }
+
+    public void setCompletedWhatsappSent(Boolean completedWhatsappSent) {
+        this.completedWhatsappSent = completedWhatsappSent;
     }
 }
