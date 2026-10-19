@@ -15,6 +15,10 @@ document.addEventListener("DOMContentLoaded", function () {
     let areas = [];
     let editingCustomerId = null;
 
+    // Pagination settings
+    let currentPage = 1;
+    let pageSize = 10;
+    let paginationContainer = null;
 
     // =========================
     // INITIAL LOAD
@@ -23,18 +27,48 @@ document.addEventListener("DOMContentLoaded", function () {
     loadAreas();
     loadCustomers();
 
+    // =========================
+    // PAGINATION CONTAINER
+    // =========================
+
+    function setupPaginationContainer() {
+        if (!customerTable || paginationContainer) return;
+
+        const table = customerTable.closest("table");
+        if (!table) return;
+
+        paginationContainer = document.createElement("div");
+        paginationContainer.id = "customerPagination";
+
+        paginationContainer.style.cssText = `
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 16px 0;
+            padding: 12px 0;
+        `;
+
+        const wrapper = table.closest(
+            ".table-container, .table-wrapper, .table-responsive"
+        );
+
+        (wrapper || table).insertAdjacentElement(
+            "afterend",
+            paginationContainer
+        );
+    }
 
     // =========================
-    // ADD CUSTOMER
+    // ADD CUSTOMER MODAL
     // =========================
 
     function openAddModal() {
+        if (!modal || !form) return;
 
         editingCustomerId = null;
-
-        if (form) {
-            form.reset();
-        }
+        form.reset();
 
         const title = modal.querySelector(".modal-header h2");
 
@@ -45,32 +79,25 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.classList.add("show");
     }
 
-
     if (addButton) {
         addButton.addEventListener("click", openAddModal);
     }
 
-
     if (emptyAddButton) {
         emptyAddButton.addEventListener("click", openAddModal);
     }
-
 
     // =========================
     // CLOSE MODAL
     // =========================
 
     function closeModal() {
-
         if (!modal) return;
 
         modal.classList.remove("show");
-
         editingCustomerId = null;
 
-        if (form) {
-            form.reset();
-        }
+        if (form) form.reset();
 
         const title = modal.querySelector(".modal-header h2");
 
@@ -79,69 +106,48 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-
     if (closeButton) {
         closeButton.addEventListener("click", closeModal);
     }
-
 
     if (cancelButton) {
         cancelButton.addEventListener("click", closeModal);
     }
 
-
     if (modal) {
-
         modal.addEventListener("click", function (event) {
-
             if (event.target === modal) {
                 closeModal();
             }
-
         });
-
     }
-
 
     // =========================
     // LOAD AREAS
     // =========================
 
     async function loadAreas() {
-
         try {
-
-            const response =
-                await fetch("/api/areas");
+            const response = await fetch("/api/areas");
 
             if (!response.ok) {
                 throw new Error("Unable to load areas");
             }
 
             areas = await response.json();
-
             populateAreas();
 
         } catch (error) {
-
-            console.error(
-                "Area loading error:",
-                error
-            );
-
+            console.error("Area loading error:", error);
         }
     }
 
-
     // =========================
-    // POPULATE AREAS
+    // POPULATE AREA DROPDOWNS
     // =========================
 
     function populateAreas() {
-
-        if (!areaSelect || !areaFilter) {
-            return;
-        }
+        if (!areaSelect || !areaFilter) return;
 
         areaSelect.innerHTML =
             '<option value="">Select Area</option>';
@@ -149,205 +155,156 @@ document.addEventListener("DOMContentLoaded", function () {
         areaFilter.innerHTML =
             '<option value="">All Areas</option>';
 
-
         areas.forEach(function (area) {
-
-            const option =
-                document.createElement("option");
+            const option = document.createElement("option");
 
             option.value = area.id;
             option.textContent = area.name;
 
             areaSelect.appendChild(option);
 
-
-            const filterOption =
-                document.createElement("option");
+            const filterOption = document.createElement("option");
 
             filterOption.value = area.id;
             filterOption.textContent = area.name;
 
             areaFilter.appendChild(filterOption);
-
         });
-
     }
-
 
     // =========================
     // LOAD CUSTOMERS
     // =========================
 
     async function loadCustomers() {
-
         try {
-
-            const response =
-                await fetch("/api/customers");
+            const response = await fetch("/api/customers");
 
             if (!response.ok) {
-                throw new Error(
-                    "Unable to load customers"
-                );
+                throw new Error("Unable to load customers");
             }
 
             customers = await response.json();
 
             updateStatistics();
-
             displayCustomers();
 
         } catch (error) {
-
-            console.error(
-                "Customer loading error:",
-                error
-            );
-
+            console.error("Customer loading error:", error);
+            alert("Unable to load customers. Please refresh the page.");
         }
-
     }
 
+    // =========================
+    // FILTER CUSTOMERS
+    // =========================
+
+    function getFilteredCustomers() {
+        const searchText = searchInput
+            ? searchInput.value.toLowerCase().trim()
+            : "";
+
+        const selectedArea = areaFilter
+            ? areaFilter.value
+            : "";
+
+        return customers.filter(function (customer) {
+            const name = (customer.name || "").toLowerCase();
+            const phone = (customer.phone || "").toLowerCase();
+            const email = (customer.email || "").toLowerCase();
+            const address = (customer.address || "").toLowerCase();
+
+            const areaName = customer.area
+                ? (customer.area.name || "").toLowerCase()
+                : "";
+
+            const matchesSearch =
+                name.includes(searchText) ||
+                phone.includes(searchText) ||
+                email.includes(searchText) ||
+                address.includes(searchText) ||
+                areaName.includes(searchText);
+
+            const matchesArea =
+                selectedArea === "" ||
+                String(customer.area?.id) === String(selectedArea);
+
+            return matchesSearch && matchesArea;
+        });
+    }
 
     // =========================
     // DISPLAY CUSTOMERS
     // =========================
 
     function displayCustomers() {
+        if (!customerTable) return;
 
-        if (!customerTable) {
-            return;
-        }
+        setupPaginationContainer();
 
+        const filteredCustomers = getFilteredCustomers();
+        const totalRecords = filteredCustomers.length;
 
-        const searchText =
-            searchInput
-                ? searchInput.value.toLowerCase().trim()
-                : "";
+        const totalPages = Math.max(
+            1,
+            Math.ceil(totalRecords / pageSize)
+        );
 
+        // Keep page number valid after searching or filtering.
+        currentPage = Math.min(
+            Math.max(currentPage, 1),
+            totalPages
+        );
 
-        const selectedArea =
-            areaFilter
-                ? areaFilter.value
-                : "";
+        const startIndex = (currentPage - 1) * pageSize;
 
-
-        const filteredCustomers =
-            customers.filter(function (customer) {
-
-                const name =
-                    (customer.name || "").toLowerCase();
-
-                const phone =
-                    (customer.phone || "").toLowerCase();
-
-                const email =
-                    (customer.email || "").toLowerCase();
-
-                const address =
-                    (customer.address || "").toLowerCase();
-
-                const areaName =
-                    customer.area
-                        ? (customer.area.name || "").toLowerCase()
-                        : "";
-
-
-                const matchesSearch =
-                    name.includes(searchText) ||
-                    phone.includes(searchText) ||
-                    email.includes(searchText) ||
-                    address.includes(searchText) ||
-                    areaName.includes(searchText);
-
-
-                const matchesArea =
-                    selectedArea === "" ||
-                    String(customer.area?.id) ===
-                    String(selectedArea);
-
-
-                return matchesSearch && matchesArea;
-
-            });
-
+        const pageCustomers = filteredCustomers.slice(
+            startIndex,
+            startIndex + pageSize
+        );
 
         customerTable.innerHTML = "";
 
-
-        if (filteredCustomers.length === 0) {
-
+        if (totalRecords === 0) {
             customerTable.innerHTML = `
-
                 <tr>
-
                     <td colspan="6" class="empty">
-
-                        <div class="empty-icon">
-                            👥
-                        </div>
-
-                        <strong>
-                            No customers found
-                        </strong>
-
-                        <p>
-                            Try changing your search
-                            or add a new customer.
-                        </p>
-
+                        <div class="empty-icon">👥</div>
+                        <strong>No customers found</strong>
+                        <p>Try changing your search or add a new customer.</p>
                     </td>
-
                 </tr>
-
             `;
 
+            renderPagination(0, 0, totalPages);
             return;
         }
 
+        pageCustomers.forEach(function (customer) {
+            const row = document.createElement("tr");
 
-        filteredCustomers.forEach(function (customer) {
-
-            const row =
-                document.createElement("tr");
-
-
-            const areaName =
-                customer.area
-                    ? customer.area.name
-                    : "-";
-
+            const areaName = customer.area
+                ? customer.area.name
+                : "-";
 
             row.innerHTML = `
-
                 <td>
-                    <strong>
-                        ${escapeHtml(customer.name)}
-                    </strong>
+                    <strong>${escapeHtml(customer.name)}</strong>
                 </td>
 
-                <td>
-                    ${escapeHtml(customer.phone)}
-                </td>
+                <td>${escapeHtml(customer.phone)}</td>
 
                 <td>
-                    ${
-                        customer.email
-                            ? escapeHtml(customer.email)
-                            : "-"
-                    }
+                    ${customer.email
+                        ? escapeHtml(customer.email)
+                        : "-"}
                 </td>
 
-                <td>
-                    ${escapeHtml(areaName)}
-                </td>
+                <td>${escapeHtml(areaName)}</td>
 
-                <td>
-                    0
-                </td>
+                <td>0</td>
 
                 <td class="customer-actions">
-
                     <button
                         type="button"
                         class="table-action view-button">
@@ -359,667 +316,538 @@ document.addEventListener("DOMContentLoaded", function () {
                         class="table-action edit-button">
                         Edit
                     </button>
-
                 </td>
             `;
 
-
-            // =========================
-            // VIEW
-            // =========================
-
-            const viewButton =
-                row.querySelector(".view-button");
-
-
-            viewButton.addEventListener(
+            row.querySelector(".view-button").addEventListener(
                 "click",
                 function () {
-
                     showCustomerDetails(customer);
-
                 }
             );
 
-
-            // =========================
-            // EDIT
-            // =========================
-
-            const editButton =
-                row.querySelector(".edit-button");
-
-
-            editButton.addEventListener(
+            row.querySelector(".edit-button").addEventListener(
                 "click",
                 function () {
-
                     editCustomer(customer);
-
                 }
             );
-
 
             customerTable.appendChild(row);
-
         });
 
+        renderPagination(totalRecords, startIndex, totalPages);
     }
 
+    // =========================
+    // PAGINATION CONTROLS
+    // =========================
+
+    function renderPagination(totalRecords, startIndex, totalPages) {
+        if (!paginationContainer) return;
+
+        const startRecord = totalRecords === 0
+            ? 0
+            : startIndex + 1;
+
+        const endRecord = Math.min(
+            startIndex + pageSize,
+            totalRecords
+        );
+
+        const pageButtons = [];
+
+        const firstPage = Math.max(1, currentPage - 2);
+        const lastPage = Math.min(totalPages, currentPage + 2);
+
+        if (firstPage > 1) {
+            pageButtons.push({ page: 1, label: "1" });
+
+            if (firstPage > 2) {
+                pageButtons.push({ label: "…" });
+            }
+        }
+
+        for (let page = firstPage; page <= lastPage; page++) {
+            pageButtons.push({
+                page: page,
+                label: String(page)
+            });
+        }
+
+        if (lastPage < totalPages) {
+            if (lastPage < totalPages - 1) {
+                pageButtons.push({ label: "…" });
+            }
+
+            pageButtons.push({
+                page: totalPages,
+                label: String(totalPages)
+            });
+        }
+
+        paginationContainer.innerHTML = `
+            <div style="
+                display:flex;
+                align-items:center;
+                flex-wrap:wrap;
+                gap:10px;
+            ">
+                <span style="font-size:13px;color:#64748b;">
+                    Showing ${startRecord}–${endRecord}
+                    of ${totalRecords} customers
+                </span>
+
+                <label style="
+                    display:flex;
+                    align-items:center;
+                    gap:6px;
+                    font-size:13px;
+                ">
+                    Rows per page
+
+                    <select id="customerPageSize" style="
+                        padding:6px 8px;
+                        border:1px solid #cbd5e1;
+                        border-radius:6px;
+                        background:#fff;
+                        color:#334155;
+                    ">
+                        <option value="10" ${pageSize === 10 ? "selected" : ""}>10</option>
+                        <option value="20" ${pageSize === 20 ? "selected" : ""}>20</option>
+                        <option value="30" ${pageSize === 30 ? "selected" : ""}>30</option>
+                    </select>
+                </label>
+            </div>
+
+            <div style="
+                display:flex;
+                align-items:center;
+                flex-wrap:wrap;
+                gap:6px;
+            " aria-label="Customer table pagination">
+
+                <button
+                    type="button"
+                    data-page="${currentPage - 1}"
+                    ${currentPage <= 1 ? "disabled" : ""}
+                    class="pagination-button">
+                    Previous
+                </button>
+
+                ${pageButtons.map(function (item) {
+                    if (item.page === undefined) {
+                        return `
+                            <span style="padding:6px;color:#64748b;">
+                                …
+                            </span>
+                        `;
+                    }
+
+                    const active = item.page === currentPage;
+
+                    return `
+                        <button
+                            type="button"
+                            data-page="${item.page}"
+                            ${active ? 'aria-current="page"' : ""}
+                            style="
+                                min-width:34px;
+                                padding:7px 10px;
+                                border:1px solid ${active ? "#2563eb" : "#cbd5e1"};
+                                border-radius:6px;
+                                background:${active ? "#2563eb" : "#fff"};
+                                color:${active ? "#fff" : "#334155"};
+                                cursor:pointer;
+                            ">
+                            ${item.label}
+                        </button>
+                    `;
+                }).join("")}
+
+                <button
+                    type="button"
+                    data-page="${currentPage + 1}"
+                    ${currentPage >= totalPages ? "disabled" : ""}
+                    class="pagination-button">
+                    Next
+                </button>
+            </div>
+        `;
+
+        // Style Previous and Next.
+        paginationContainer
+            .querySelectorAll(".pagination-button")
+            .forEach(function (button) {
+                button.style.cssText = `
+                    padding:7px 10px;
+                    border:1px solid #cbd5e1;
+                    border-radius:6px;
+                    background:#fff;
+                    color:#334155;
+                    cursor:pointer;
+                `;
+
+                if (button.disabled) {
+                    button.style.opacity = "0.45";
+                    button.style.cursor = "not-allowed";
+                }
+            });
+
+        // Change page size.
+        const pageSizeSelect =
+            paginationContainer.querySelector("#customerPageSize");
+
+        if (pageSizeSelect) {
+            pageSizeSelect.addEventListener("change", function () {
+                pageSize = Number(pageSizeSelect.value) || 10;
+                currentPage = 1;
+                displayCustomers();
+            });
+        }
+
+        // Change page number.
+        paginationContainer
+            .querySelectorAll("button[data-page]")
+            .forEach(function (button) {
+                button.addEventListener("click", function () {
+                    if (button.disabled) return;
+
+                    currentPage = Number(button.dataset.page);
+                    displayCustomers();
+                });
+            });
+    }
 
     // =========================
     // VIEW CUSTOMER DETAILS
     // =========================
 
     function showCustomerDetails(customer) {
-
-        // Remove old details modal if it exists
         const oldModal =
             document.getElementById("customerViewModal");
 
-        if (oldModal) {
-            oldModal.remove();
-        }
+        if (oldModal) oldModal.remove();
 
+        const areaName = customer.area
+            ? customer.area.name
+            : "-";
 
-        const areaName =
-            customer.area
-                ? customer.area.name
-                : "-";
-
-
-        const viewModal =
-            document.createElement("div");
+        const viewModal = document.createElement("div");
 
         viewModal.id = "customerViewModal";
-
-        viewModal.className =
-            "modal-overlay show";
-
+        viewModal.className = "modal-overlay show";
 
         viewModal.innerHTML = `
-
             <div class="modal">
-
                 <div class="modal-header">
-
                     <div>
-
-                        <h2>
-                            Customer Details
-                        </h2>
-
-                        <p>
-                            Customer information
-                        </p>
-
+                        <h2>Customer Details</h2>
+                        <p>Customer information</p>
                     </div>
 
                     <button
                         type="button"
                         class="modal-close"
                         id="closeCustomerView">
-
                         ×
-
                     </button>
-
                 </div>
 
-
-                <div style="padding: 24px;">
-
+                <div style="padding:24px;">
                     <div class="form-grid">
 
                         <div class="form-group">
-
-                            <label>
-                                Full Name
-                            </label>
-
+                            <label>Full Name</label>
                             <input
                                 type="text"
                                 value="${escapeAttribute(customer.name)}"
                                 readonly>
-
                         </div>
 
-
                         <div class="form-group">
-
-                            <label>
-                                Mobile Number
-                            </label>
-
+                            <label>Mobile Number</label>
                             <input
                                 type="text"
                                 value="${escapeAttribute(customer.phone)}"
                                 readonly>
-
                         </div>
 
-
                         <div class="form-group">
-
-                            <label>
-                                Email
-                            </label>
-
+                            <label>Email</label>
                             <input
                                 type="text"
                                 value="${escapeAttribute(customer.email || "-")}"
                                 readonly>
-
                         </div>
 
-
                         <div class="form-group">
-
-                            <label>
-                                Area
-                            </label>
-
+                            <label>Area</label>
                             <input
                                 type="text"
                                 value="${escapeAttribute(areaName)}"
                                 readonly>
-
                         </div>
 
-
                         <div class="form-group full">
-
-                            <label>
-                                Address
-                            </label>
-
-                            <textarea
-                                rows="3"
-                                readonly>${escapeHtml(customer.address || "-")}</textarea>
-
+                            <label>Address</label>
+                            <textarea rows="3" readonly>${escapeHtml(customer.address || "-")}</textarea>
                         </div>
 
                     </div>
-
                 </div>
-
-
-
-
             </div>
-
         `;
-
 
         document.body.appendChild(viewModal);
 
+        viewModal.querySelector("#closeCustomerView")
+            .addEventListener("click", function () {
+                viewModal.remove();
+            });
 
-        // Close X
-        document
-            .getElementById("closeCustomerView")
-            .addEventListener(
-                "click",
-                function () {
-
-                    viewModal.remove();
-
-                }
-            );
-
-
-        // Close button
-        document
-            .getElementById("closeCustomerView")
-            .addEventListener(
-                "click",
-                function () {
-
-                    viewModal.remove();
-
-                }
-            );
-
-
-        // Click outside modal
-        viewModal.addEventListener(
-            "click",
-            function (event) {
-
-                if (event.target === viewModal) {
-                    viewModal.remove();
-                }
-
+        viewModal.addEventListener("click", function (event) {
+            if (event.target === viewModal) {
+                viewModal.remove();
             }
-        );
-
+        });
     }
-
 
     // =========================
     // EDIT CUSTOMER
     // =========================
 
     function editCustomer(customer) {
+        if (!modal || !form) return;
 
-        editingCustomerId =
-            customer.id;
+        editingCustomerId = customer.id;
 
-
-        document.getElementById(
-            "customerName"
-        ).value =
+        document.getElementById("customerName").value =
             customer.name || "";
 
-
-        document.getElementById(
-            "customerPhone"
-        ).value =
+        document.getElementById("customerPhone").value =
             customer.phone || "";
 
-
-        document.getElementById(
-            "customerEmail"
-        ).value =
+        document.getElementById("customerEmail").value =
             customer.email || "";
 
-
-        document.getElementById(
-            "customerAddress"
-        ).value =
+        document.getElementById("customerAddress").value =
             customer.address || "";
 
-
         if (areaSelect) {
-
-            areaSelect.value =
-                customer.area
-                    ? customer.area.id
-                    : "";
-
+            areaSelect.value = customer.area
+                ? customer.area.id
+                : "";
         }
 
-
-        const title =
-            modal.querySelector(".modal-header h2");
-
+        const title = modal.querySelector(".modal-header h2");
 
         if (title) {
-            title.textContent =
-                "Edit Customer";
+            title.textContent = "Edit Customer";
         }
 
-
         modal.classList.add("show");
-
     }
-
 
     // =========================
     // SEARCH
     // =========================
 
     if (searchInput) {
-
-        searchInput.addEventListener(
-            "input",
-            displayCustomers
-        );
-
+        searchInput.addEventListener("input", function () {
+            currentPage = 1;
+            displayCustomers();
+        });
     }
-
 
     // =========================
     // AREA FILTER
     // =========================
 
     if (areaFilter) {
-
-        areaFilter.addEventListener(
-            "change",
-            displayCustomers
-        );
-
+        areaFilter.addEventListener("change", function () {
+            currentPage = 1;
+            displayCustomers();
+        });
     }
 
-
     // =========================
-    // SAVE / UPDATE
+    // SAVE / UPDATE CUSTOMER
     // =========================
 
     if (form) {
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
 
-        form.addEventListener(
-            "submit",
-            async function (event) {
+            const name =
+                document.getElementById("customerName").value.trim();
 
-                event.preventDefault();
+            const phone =
+                document.getElementById("customerPhone").value.trim();
 
+            const email =
+                document.getElementById("customerEmail").value.trim();
 
-                const name =
-                    document.getElementById(
-                        "customerName"
-                    ).value.trim();
+            const address =
+                document.getElementById("customerAddress").value.trim();
 
+            const areaId = areaSelect
+                ? areaSelect.value
+                : "";
 
-                const phone =
-                    document.getElementById(
-                        "customerPhone"
-                    ).value.trim();
-
-
-                const email =
-                    document.getElementById(
-                        "customerEmail"
-                    ).value.trim();
-
-
-                const address =
-                    document.getElementById(
-                        "customerAddress"
-                    ).value.trim();
-
-
-                const areaId =
-                    areaSelect
-                        ? areaSelect.value
-                        : "";
-
-
-                if (!name) {
-
-                    alert(
-                        "Please enter customer name."
-                    );
-
-                    return;
-                }
-
-
-                if (!phone) {
-
-                    alert(
-                        "Please enter mobile number."
-                    );
-
-                    return;
-                }
-
-
-                if (!address) {
-
-                    alert(
-                        "Please enter customer address."
-                    );
-
-                    return;
-                }
-
-
-                if (!areaId) {
-
-                    alert(
-                        "Please select an area."
-                    );
-
-                    return;
-                }
-
-
-                const customerData = {
-
-                    name: name,
-
-                    phone: phone,
-
-                    email: email,
-
-                    address: address,
-
-                    area: {
-                        id: Number(areaId)
-                    }
-
-                };
-
-
-                try {
-
-                    let response;
-
-
-                    // =========================
-                    // UPDATE
-                    // =========================
-
-                    if (editingCustomerId !== null) {
-
-                        response =
-                            await fetch(
-                                "/api/customers/" +
-                                editingCustomerId,
-                                {
-                                    method: "PUT",
-
-                                    headers: {
-                                        "Content-Type":
-                                            "application/json"
-                                    },
-
-                                    body:
-                                        JSON.stringify(
-                                            customerData
-                                        )
-                                }
-                            );
-
-
-                        if (!response.ok) {
-
-                            throw new Error(
-                                "Unable to update customer."
-                            );
-
-                        }
-
-
-                        const updatedCustomer =
-                            await response.json();
-
-
-                        const index =
-                            customers.findIndex(
-                                function (item) {
-
-                                    return item.id ===
-                                        editingCustomerId;
-
-                                }
-                            );
-
-
-                        if (index !== -1) {
-
-                            customers[index] =
-                                updatedCustomer;
-
-                        }
-
-
-                        closeModal();
-
-                        updateStatistics();
-
-                        displayCustomers();
-
-
-                        alert(
-                            "Customer updated successfully!"
-                        );
-
-                    }
-
-                    // =========================
-                    // CREATE
-                    // =========================
-
-                    else {
-
-                        response =
-                            await fetch(
-                                "/api/customers",
-                                {
-                                    method: "POST",
-
-                                    headers: {
-                                        "Content-Type":
-                                            "application/json"
-                                    },
-
-                                    body:
-                                        JSON.stringify(
-                                            customerData
-                                        )
-                                }
-                            );
-
-
-                        if (!response.ok) {
-
-                            throw new Error(
-                                "Unable to save customer."
-                            );
-
-                        }
-
-
-                        const savedCustomer =
-                            await response.json();
-
-
-                        customers.push(
-                            savedCustomer
-                        );
-
-
-                        closeModal();
-
-                        updateStatistics();
-
-                        displayCustomers();
-
-
-                        alert(
-                            "Customer added successfully!"
-                        );
-
-                    }
-
-
-                } catch (error) {
-
-                    console.error(
-                        "Customer save error:",
-                        error
-                    );
-
-
-                    alert(error.message);
-
-                }
-
+            if (!name) {
+                alert("Please enter customer name.");
+                return;
             }
-        );
 
+            if (!phone) {
+                alert("Please enter mobile number.");
+                return;
+            }
+
+            if (!address) {
+                alert("Please enter customer address.");
+                return;
+            }
+
+            if (!areaId) {
+                alert("Please select an area.");
+                return;
+            }
+
+            const customerData = {
+                name: name,
+                phone: phone,
+                email: email,
+                address: address,
+                area: {
+                    id: Number(areaId)
+                }
+            };
+
+            try {
+                let response;
+
+                if (editingCustomerId !== null) {
+                    // UPDATE CUSTOMER
+                    response = await fetch(
+                        "/api/customers/" + editingCustomerId,
+                        {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(customerData)
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error("Unable to update customer.");
+                    }
+
+                    const updatedCustomer = await response.json();
+
+                    const index = customers.findIndex(function (item) {
+                        return String(item.id) === String(editingCustomerId);
+                    });
+
+                    if (index !== -1) {
+                        customers[index] = updatedCustomer;
+                    }
+
+                    closeModal();
+                    updateStatistics();
+                    displayCustomers();
+
+                    alert("Customer updated successfully!");
+
+                } else {
+                    // CREATE CUSTOMER
+                    response = await fetch("/api/customers", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(customerData)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Unable to save customer.");
+                    }
+
+                    const savedCustomer = await response.json();
+
+                    customers.push(savedCustomer);
+
+                    // Clear filters so the new customer can be seen.
+                    if (searchInput) searchInput.value = "";
+                    if (areaFilter) areaFilter.value = "";
+
+                    // Navigate to the last page containing the new customer.
+                    currentPage = Math.ceil(customers.length / pageSize) || 1;
+
+                    closeModal();
+                    updateStatistics();
+                    displayCustomers();
+
+                    alert("Customer added successfully!");
+                }
+
+            } catch (error) {
+                console.error("Customer save error:", error);
+                alert(error.message || "An error occurred while saving.");
+            }
+        });
     }
-
 
     // =========================
     // STATISTICS
     // =========================
 
     function updateStatistics() {
-
-        const total =
-            document.getElementById(
-                "totalCustomers"
-            );
-
-        const active =
-            document.getElementById(
-                "activeCustomers"
-            );
-
-        const areaCount =
-            document.getElementById(
-                "areaCount"
-            );
-
+        const total = document.getElementById("totalCustomers");
+        const active = document.getElementById("activeCustomers");
+        const areaCount = document.getElementById("areaCount");
 
         if (total) {
-            total.textContent =
-                customers.length;
+            total.textContent = customers.length;
         }
-
 
         if (active) {
-            active.textContent =
-                customers.length;
+            active.textContent = customers.length;
         }
 
-
-        const uniqueAreas =
-            new Set(
-
-                customers
-                    .filter(function (customer) {
-
-                        return customer.area;
-
-                    })
-                    .map(function (customer) {
-
-                        return customer.area.id;
-
-                    })
-
-            );
-
+        const uniqueAreas = new Set(
+            customers
+                .filter(function (customer) {
+                    return customer.area;
+                })
+                .map(function (customer) {
+                    return customer.area.id;
+                })
+        );
 
         if (areaCount) {
-
-            areaCount.textContent =
-                uniqueAreas.size;
-
+            areaCount.textContent = uniqueAreas.size;
         }
-
     }
 
-
     // =========================
-    // ESCAPE HTML
+    // HTML ESCAPING
     // =========================
 
     function escapeHtml(value) {
-
-        const div =
-            document.createElement("div");
-
-        div.textContent =
-            value ?? "";
-
+        const div = document.createElement("div");
+        div.textContent = value ?? "";
         return div.innerHTML;
-
     }
 
-
     function escapeAttribute(value) {
-
         return String(value ?? "")
             .replace(/&/g, "&amp;")
             .replace(/"/g, "&quot;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
-
     }
 
 });
