@@ -1,4 +1,8 @@
-/* Daily Sales page-specific styles */
+
+/* ========================================
+   DAILY SALES PAGE-SPECIFIC STYLES
+======================================== */
+
 .daily-sales-date {
     display: flex;
     align-items: center;
@@ -53,6 +57,10 @@
     overflow-wrap: anywhere;
 }
 
+/* ========================================
+   DAILY SALES PAGINATION
+======================================== */
+
 .daily-sales-pagination {
     display: flex;
     align-items: center;
@@ -81,6 +89,56 @@
     opacity: 0.45;
     cursor: not-allowed;
 }
+
+/* ========================================
+   EXPORT CSV BUTTON
+   SAME STYLE AS ADD CUSTOMER
+======================================== */
+
+.export-csv-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: none;
+    background: #1677c8;
+    color: #ffffff;
+
+    padding: 11px 18px;
+    border-radius: 7px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: normal;
+
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.2s;
+}
+
+.export-csv-button:hover {
+    background: #1269b2;
+}
+
+.export-csv-button:active {
+    transform: translateY(1px);
+}
+
+.export-csv-button:focus-visible {
+    outline: 3px solid rgba(22, 119, 200, 0.25);
+    outline-offset: 2px;
+}
+
+.export-csv-icon {
+    display: block;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   RESPONSIVE STYLES
+======================================== */
 
 @media (max-width: 900px) {
     .daily-sales-stats {
