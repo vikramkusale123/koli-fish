@@ -1,6 +1,11 @@
 
 package com.kolifish.customer;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.function.Supplier;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +17,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
+import org.springframework.util.StringUtils;
 
 @Configuration
 public class SecurityConfig {
@@ -53,16 +62,16 @@ public class SecurityConfig {
                         .csrfTokenRepository(
                                 CookieCsrfTokenRepository.withHttpOnlyFalse()
                         )
+                        .csrfTokenRequestHandler(
+                                new SpaCsrfTokenRequestHandler()
+                        )
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // CSRF token endpoint
                         .requestMatchers("/api/csrf").permitAll()
 
-                        // Meta WhatsApp webhook
                         .requestMatchers("/api/whatsapp/webhook").permitAll()
                         .requestMatchers("/api/whatsapp/webhook/**").permitAll()
 
-                        // Login page and static resources
                         .requestMatchers(
                                 "/login",
                                 "/login.html",
@@ -72,7 +81,6 @@ public class SecurityConfig {
                                 "/favicon.ico"
                         ).permitAll()
 
-                        // Protect all other pages and APIs
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -86,10 +94,55 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login.html?logout")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "XSRF-TOKEN")
                         .permitAll()
                 );
 
         return http.build();
+    }
+
+    /**
+     * Supports SPA clients that read the XSRF-TOKEN cookie
+     * and send its value in the X-XSRF-TOKEN request header.
+     */
+    private static final class SpaCsrfTokenRequestHandler
+            extends CsrfTokenRequestAttributeHandler {
+
+        private final CsrfTokenRequestAttributeHandler plainHandler =
+                new CsrfTokenRequestAttributeHandler();
+
+        private final XorCsrfTokenRequestAttributeHandler xorHandler =
+                new XorCsrfTokenRequestAttributeHandler();
+
+        @Override
+        public void handle(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                Supplier<CsrfToken> csrfToken) {
+
+            this.xorHandler.handle(request, response, csrfToken);
+
+            // Force the deferred token to be generated and saved.
+            csrfToken.get();
+        }
+
+        @Override
+        public String resolveCsrfTokenValue(
+                HttpServletRequest request,
+                CsrfToken csrfToken) {
+
+            String headerValue =
+                    request.getHeader(csrfToken.getHeaderName());
+
+            if (StringUtils.hasText(headerValue)) {
+                return this.plainHandler.resolveCsrfTokenValue(
+                        request, csrfToken
+                );
+            }
+
+            return this.xorHandler.resolveCsrfTokenValue(
+                    request, csrfToken
+            );
+        }
     }
 }

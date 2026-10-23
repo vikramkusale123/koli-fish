@@ -1,3 +1,4 @@
+
 package com.kolifish.customer.entity;
 
 import jakarta.persistence.*;
@@ -34,6 +35,10 @@ public class Order {
     @Column(name = "completed_whatsapp_sent", nullable = false)
     private Boolean completedWhatsappSent = false;
 
+    // Stock deduction tracking
+    @Column(name = "stock_deducted", nullable = false)
+    private Boolean stockDeducted = false;
+
     // Order items
     @OneToMany(
             mappedBy = "order",
@@ -66,6 +71,10 @@ public class Order {
 
         if (completedWhatsappSent == null) {
             completedWhatsappSent = false;
+        }
+
+        if (stockDeducted == null) {
+            stockDeducted = false;
         }
     }
 
@@ -136,5 +145,13 @@ public class Order {
 
     public void setCompletedWhatsappSent(Boolean completedWhatsappSent) {
         this.completedWhatsappSent = completedWhatsappSent;
+    }
+
+    public Boolean getStockDeducted() {
+        return stockDeducted;
+    }
+
+    public void setStockDeducted(Boolean stockDeducted) {
+        this.stockDeducted = stockDeducted;
     }
 }

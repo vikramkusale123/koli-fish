@@ -1,3 +1,4 @@
+
 package com.kolifish.customer.controller;
 
 import com.kolifish.customer.entity.Product;
@@ -33,6 +34,15 @@ public class ProductController {
 
         return ResponseEntity.ok(
                 productService.getAllProducts()
+        );
+    }
+
+    // Get products with low or zero stock
+    @GetMapping("/stock-alerts")
+    public ResponseEntity<List<Product>> getStockAlerts() {
+
+        return ResponseEntity.ok(
+                productService.getStockAlerts()
         );
     }
 

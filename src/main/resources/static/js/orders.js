@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", function () {
 
     // ===============================
@@ -46,13 +45,71 @@ document.addEventListener("DOMContentLoaded", function () {
     let editingOrderId = null;
 
     // ===============================
-    // PAGINATION SETTINGS
-    // Reference: Customer JS
+    // PAGINATION
     // ===============================
 
     let currentPage = 1;
     let pageSize = 30;
     let paginationContainer = null;
+
+    // ===============================
+    // CSRF SUPPORT
+    // Spring Security CookieCsrfTokenRepository
+    // ===============================
+
+    function getCookie(name) {
+        const prefix = name + "=";
+
+        const cookie = document.cookie
+            .split(";")
+            .map(cookie => cookie.trim())
+            .find(cookie => cookie.startsWith(prefix));
+
+        return cookie
+            ? decodeURIComponent(cookie.substring(prefix.length))
+            : null;
+    }
+
+    async function prepareCsrfToken() {
+        // If your backend exposes GET /api/csrf, this initializes
+        // the CSRF cookie before a create/update/delete request.
+        try {
+            await fetch("/api/csrf", {
+                method: "GET",
+                credentials: "same-origin",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+        } catch (error) {
+            console.warn("Could not initialize CSRF token:", error);
+        }
+    }
+
+    async function apiFetch(url, options = {}) {
+        const method = String(options.method || "GET").toUpperCase();
+
+        const requestOptions = {
+            ...options,
+            method,
+            credentials: "same-origin",
+            headers: {
+                ...(options.headers || {})
+            }
+        };
+
+        if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+            await prepareCsrfToken();
+
+            const csrfToken = getCookie("XSRF-TOKEN");
+
+            if (csrfToken) {
+                requestOptions.headers["X-XSRF-TOKEN"] = csrfToken;
+            }
+        }
+
+        return fetch(url, requestOptions);
+    }
 
     // ===============================
     // INITIAL LOAD
@@ -71,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ===============================
-    // SORT ORDERS: LATEST FIRST
+    // SORT: LATEST FIRST
     // ===============================
 
     function sortOrdersLatestFirst(ordersList) {
@@ -79,12 +136,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const dateA = new Date(a.orderDate || a.createdAt || 0).getTime() || 0;
             const dateB = new Date(b.orderDate || b.createdAt || 0).getTime() || 0;
 
-            // Latest date first
             if (dateA !== dateB) {
                 return dateB - dateA;
             }
 
-            // If dates match, higher order ID first
             return Number(b.id || 0) - Number(a.id || 0);
         });
     }
@@ -103,13 +158,13 @@ document.addEventListener("DOMContentLoaded", function () {
         paginationContainer.id = "orderPagination";
 
         paginationContainer.style.cssText = `
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin: 16px 0;
-            padding: 12px 0;
+            display:flex;
+            flex-wrap:wrap;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            margin:16px 0;
+            padding:12px 0;
         `;
 
         const wrapper = table.closest(
@@ -127,9 +182,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===============================
 
     function getSubmitButton() {
-        if (!orderForm) return null;
-
-        return orderForm.querySelector('button[type="submit"]');
+        return orderForm
+            ? orderForm.querySelector('button[type="submit"]')
+            : null;
     }
 
     // ===============================
@@ -140,8 +195,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!orderModal) return;
 
         editingOrderId = null;
-
         orderModal.classList.add("show");
+
         resetOrderForm();
 
         const submitButton = getSubmitButton();
@@ -162,15 +217,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function openEditModal(id) {
         try {
-            const response = await fetch(`/api/orders/${id}`);
+            const response = await apiFetch(`/api/orders/${id}`);
 
             if (!response.ok) {
-                throw new Error("Unable to load order");
+                throw new Error(`Unable to load order (${response.status})`);
             }
 
             const order = await response.json();
 
-            editingOrderId = id;
+            editingOrderId = Number(id);
 
             if (orderModal) {
                 orderModal.classList.add("show");
@@ -181,22 +236,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 loadProducts()
             ]);
 
-            // Customer
             if (orderCustomer && order.customer) {
-                orderCustomer.value = order.customer.id;
+                orderCustomer.value = String(order.customer.id);
             }
 
-            // Date
             if (orderDate && order.orderDate) {
                 orderDate.value = order.orderDate.split("T")[0];
             }
 
-            // Status
             if (orderStatus) {
                 orderStatus.value = order.status || "PENDING";
             }
 
-            // Order items
             orderItems = [];
 
             if (Array.isArray(order.items)) {
@@ -208,17 +259,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     const quantity = Number(item.quantity || 0);
-
                     const unitPrice = Number(
                         item.unitPrice ?? product?.price ?? 0
                     );
 
                     orderItems.push({
                         productId: Number(item.product.id),
-                        productName:
-                            item.product.name || product?.name || "-",
-                        quantity: quantity,
-                        unitPrice: unitPrice,
+                        productName: item.product.name || product?.name || "-",
+                        quantity,
+                        unitPrice,
                         subtotal: quantity * unitPrice
                     });
                 });
@@ -239,7 +288,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } catch (error) {
             console.error("Edit order error:", error);
-            alert("Unable to load order for editing.");
+            alert("Unable to load order for editing. Check the browser console.");
         }
     }
 
@@ -286,6 +335,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (orderTotal) {
             orderTotal.value = "0.00";
         }
+
+        renderOrderItems();
     }
 
     // ===============================
@@ -294,10 +345,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function loadOrders() {
         try {
-            const response = await fetch("/api/orders");
+            const response = await apiFetch("/api/orders");
 
             if (!response.ok) {
-                throw new Error("Unable to load orders");
+                throw new Error(`Unable to load orders (${response.status})`);
             }
 
             const data = await response.json();
@@ -311,9 +362,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } catch (error) {
             console.error("Order loading error:", error);
-
             orders = [];
-
             updateStats();
             displayOrders();
         }
@@ -327,10 +376,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!orderCustomer) return;
 
         try {
-            const response = await fetch("/api/customers");
+            const response = await apiFetch("/api/customers");
 
             if (!response.ok) {
-                throw new Error("Unable to load customers");
+                throw new Error(`Unable to load customers (${response.status})`);
             }
 
             customers = await response.json();
@@ -344,7 +393,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 option.value = customer.id;
                 option.textContent =
-                    customer.name +
+                    (customer.name || "Unnamed customer") +
                     (customer.phone ? " - " + customer.phone : "");
 
                 orderCustomer.appendChild(option);
@@ -363,10 +412,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!orderProduct) return;
 
         try {
-            const response = await fetch("/api/products");
+            const response = await apiFetch("/api/products");
 
             if (!response.ok) {
-                throw new Error("Unable to load products");
+                throw new Error(`Unable to load products (${response.status})`);
             }
 
             products = await response.json();
@@ -438,10 +487,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             } else {
                 orderItems.push({
-                    productId: productId,
+                    productId,
                     productName: product.name,
-                    quantity: quantity,
-                    unitPrice: unitPrice,
+                    quantity,
+                    unitPrice,
                     subtotal: quantity * unitPrice
                 });
             }
@@ -455,7 +504,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ===============================
-    // RENDER ORDER ITEMS IN MODAL
+    // RENDER ORDER ITEMS
     // ===============================
 
     function renderOrderItems() {
@@ -475,7 +524,6 @@ document.addEventListener("DOMContentLoaded", function () {
         orderItemsList.innerHTML = orderItems
             .map((item, index) => `
                 <div class="order-item-row">
-
                     <div class="order-item-name">
                         <strong>${escapeHtml(item.productName)}</strong>
                     </div>
@@ -499,7 +547,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         title="Remove">
                         ✕
                     </button>
-
                 </div>
             `)
             .join("");
@@ -534,8 +581,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ===============================
-    // GET FILTERED ORDERS
-    // Reference: Customer JS
+    // FILTER ORDERS
     // ===============================
 
     function getFilteredOrders() {
@@ -553,7 +599,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 order.customer?.name ||
                 "";
 
-            const matchesSearch = customerName
+            const matchesSearch = String(customerName)
                 .toLowerCase()
                 .includes(search);
 
@@ -583,7 +629,6 @@ document.addEventListener("DOMContentLoaded", function () {
             Math.ceil(totalRecords / pageSize)
         );
 
-        // Keep page valid after filtering or deletion
         currentPage = Math.min(
             Math.max(currentPage, 1),
             totalPages
@@ -596,7 +641,6 @@ document.addEventListener("DOMContentLoaded", function () {
             startIndex + pageSize
         );
 
-        // Empty state
         if (totalRecords === 0) {
             orderTable.innerHTML = `
                 <tr>
@@ -621,17 +665,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("emptyOrderButton");
 
             if (newEmptyButton) {
-                newEmptyButton.addEventListener(
-                    "click",
-                    openOrderModal
-                );
+                newEmptyButton.addEventListener("click", openOrderModal);
             }
 
             renderPagination(0, 0, totalPages);
             return;
         }
 
-        // Render only the current page
         orderTable.innerHTML = pageOrders.map(order => {
             const customerName =
                 order.customerName ||
@@ -654,28 +694,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const total = Number(order.totalAmount || 0);
             const status = String(order.status || "PENDING");
-            const statusClass = status
-                .toLowerCase()
-                .replace(/[^a-z0-9_-]/g, "");
+            const statusClass = status.toLowerCase().replace(/[^a-z0-9_-]/g, "");
 
             return `
                 <tr>
                     <td>#${escapeHtml(order.id)}</td>
-
                     <td>${escapeHtml(customerName)}</td>
-
                     <td>${escapeHtml(date)}</td>
-
                     <td>${itemsText}</td>
-
                     <td>₹${total.toFixed(2)}</td>
-
                     <td>
                         <span class="status-badge ${statusClass}">
                             ${escapeHtml(status)}
                         </span>
                     </td>
-
                     <td>
                         <button
                             type="button"
@@ -700,44 +732,25 @@ document.addEventListener("DOMContentLoaded", function () {
         attachEditEvents();
         attachDeleteEvents();
 
-        renderPagination(
-            totalRecords,
-            startIndex,
-            totalPages
-        );
+        renderPagination(totalRecords, startIndex, totalPages);
     }
 
     // ===============================
     // PAGINATION CONTROLS
-    // Reference: Customer JS
     // ===============================
 
-    function renderPagination(
-        totalRecords,
-        startIndex,
-        totalPages
-    ) {
+    function renderPagination(totalRecords, startIndex, totalPages) {
         if (!paginationContainer) return;
 
-        const startRecord = totalRecords === 0
-            ? 0
-            : startIndex + 1;
-
-        const endRecord = Math.min(
-            startIndex + pageSize,
-            totalRecords
-        );
+        const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
+        const endRecord = Math.min(startIndex + pageSize, totalRecords);
 
         const pageButtons = [];
-
         const firstPage = Math.max(1, currentPage - 2);
         const lastPage = Math.min(totalPages, currentPage + 2);
 
         if (firstPage > 1) {
-            pageButtons.push({
-                page: 1,
-                label: "1"
-            });
+            pageButtons.push({ page: 1, label: "1" });
 
             if (firstPage > 2) {
                 pageButtons.push({ label: "…" });
@@ -745,10 +758,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         for (let page = firstPage; page <= lastPage; page++) {
-            pageButtons.push({
-                page: page,
-                label: String(page)
-            });
+            pageButtons.push({ page, label: String(page) });
         }
 
         if (lastPage < totalPages) {
@@ -770,8 +780,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 gap:10px;
             ">
                 <span style="font-size:13px;color:#64748b;">
-                    Showing ${startRecord}–${endRecord}
-                    of ${totalRecords} orders
+                    Showing ${startRecord}–${endRecord} of ${totalRecords} orders
                 </span>
 
                 <label style="
@@ -805,29 +814,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 gap:6px;
             " aria-label="Order table pagination">
 
-                <button
-                    type="button"
-                    data-action="first"
+                <button type="button" data-action="first"
                     class="pagination-button"
-                    ${currentPage <= 1 ? "disabled" : ""}>
-                    First
-                </button>
+                    ${currentPage <= 1 ? "disabled" : ""}>First</button>
 
-                <button
-                    type="button"
-                    data-action="previous"
+                <button type="button" data-action="previous"
                     class="pagination-button"
-                    ${currentPage <= 1 ? "disabled" : ""}>
-                    Previous
-                </button>
+                    ${currentPage <= 1 ? "disabled" : ""}>Previous</button>
 
                 ${pageButtons.map(item => {
                     if (item.page === undefined) {
-                        return `
-                            <span style="padding:6px;color:#64748b;">
-                                …
-                            </span>
-                        `;
+                        return `<span style="padding:6px;color:#64748b;">…</span>`;
                     }
 
                     const active = item.page === currentPage;
@@ -851,42 +848,29 @@ document.addEventListener("DOMContentLoaded", function () {
                     `;
                 }).join("")}
 
-                <button
-                    type="button"
-                    data-action="next"
+                <button type="button" data-action="next"
                     class="pagination-button"
-                    ${currentPage >= totalPages ? "disabled" : ""}>
-                    Next
-                </button>
+                    ${currentPage >= totalPages ? "disabled" : ""}>Next</button>
 
-                <button
-                    type="button"
-                    data-action="last"
+                <button type="button" data-action="last"
                     class="pagination-button"
-                    ${currentPage >= totalPages ? "disabled" : ""}>
-                    Last
-                </button>
+                    ${currentPage >= totalPages ? "disabled" : ""}>Last</button>
             </div>
         `;
 
-        // Style navigation buttons
-        paginationContainer
-            .querySelectorAll(".pagination-button")
-            .forEach(button => {
-                button.style.cssText += `
-                    padding:7px 10px;
-                    border:1px solid #cbd5e1;
-                    border-radius:6px;
-                    background:#fff;
-                    color:#334155;
-                    cursor:${button.disabled ? "not-allowed" : "pointer"};
-                    opacity:${button.disabled ? "0.45" : "1"};
-                `;
-            });
+        paginationContainer.querySelectorAll(".pagination-button").forEach(button => {
+            button.style.cssText += `
+                padding:7px 10px;
+                border:1px solid #cbd5e1;
+                border-radius:6px;
+                background:#fff;
+                color:#334155;
+                cursor:${button.disabled ? "not-allowed" : "pointer"};
+                opacity:${button.disabled ? "0.45" : "1"};
+            `;
+        });
 
-        // Rows per page
-        const pageSizeSelect =
-            paginationContainer.querySelector("#orderPageSize");
+        const pageSizeSelect = paginationContainer.querySelector("#orderPageSize");
 
         if (pageSizeSelect) {
             pageSizeSelect.addEventListener("change", function () {
@@ -896,44 +880,35 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-        // First, Previous, Next and Last
-        paginationContainer
-            .querySelectorAll("button[data-action]")
-            .forEach(button => {
-                button.addEventListener("click", function () {
-                    if (this.disabled) return;
+        paginationContainer.querySelectorAll("button[data-action]").forEach(button => {
+            button.addEventListener("click", function () {
+                if (this.disabled) return;
 
-                    switch (this.dataset.action) {
-                        case "first":
-                            currentPage = 1;
-                            break;
+                switch (this.dataset.action) {
+                    case "first":
+                        currentPage = 1;
+                        break;
+                    case "previous":
+                        currentPage--;
+                        break;
+                    case "next":
+                        currentPage++;
+                        break;
+                    case "last":
+                        currentPage = totalPages;
+                        break;
+                }
 
-                        case "previous":
-                            currentPage--;
-                            break;
-
-                        case "next":
-                            currentPage++;
-                            break;
-
-                        case "last":
-                            currentPage = totalPages;
-                            break;
-                    }
-
-                    displayOrders();
-                });
+                displayOrders();
             });
+        });
 
-        // Numbered pages
-        paginationContainer
-            .querySelectorAll("button[data-page]")
-            .forEach(button => {
-                button.addEventListener("click", function () {
-                    currentPage = Number(this.dataset.page);
-                    displayOrders();
-                });
+        paginationContainer.querySelectorAll("button[data-page]").forEach(button => {
+            button.addEventListener("click", function () {
+                currentPage = Number(this.dataset.page);
+                displayOrders();
             });
+        });
     }
 
     // ===============================
@@ -970,24 +945,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const response = await fetch(`/api/orders/${id}`, {
+            const response = await apiFetch(`/api/orders/${id}`, {
                 method: "DELETE"
             });
 
             if (!response.ok) {
-                throw new Error("Unable to delete order");
+                const errorText = await response.text();
+                console.error("Delete order server error:", response.status, errorText);
+                throw new Error(`Unable to delete order (${response.status})`);
             }
 
-            orders = orders.filter(
-                order => String(order.id) !== String(id)
-            );
+            orders = orders.filter(order => String(order.id) !== String(id));
 
             updateStats();
             displayOrders();
 
         } catch (error) {
             console.error("Delete order error:", error);
-            alert("Unable to delete order.");
+            alert("Unable to delete order. Check the browser console and Spring Boot console.");
         }
     }
 
@@ -1000,10 +975,7 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault();
 
             const wasCreatingOrder = editingOrderId === null;
-
-            const customerId = orderCustomer
-                ? orderCustomer.value
-                : "";
+            const customerId = orderCustomer ? orderCustomer.value : "";
 
             if (!customerId) {
                 alert("Please select a customer.");
@@ -1017,79 +989,48 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const orderData = {
                 customerId: Number(customerId),
-
-                orderDate: orderDate
-                    ? orderDate.value
-                    : "",
-
-                status: orderStatus
-                    ? orderStatus.value
-                    : "PENDING",
-
-                notes: orderNotes
-                    ? orderNotes.value.trim()
-                    : "",
-
+                orderDate: orderDate ? orderDate.value : "",
+                status: orderStatus ? orderStatus.value : "PENDING",
+                notes: orderNotes ? orderNotes.value.trim() : "",
                 items: orderItems.map(item => ({
                     productId: Number(item.productId),
                     quantity: Number(item.quantity)
                 }))
             };
 
+            const submitButton = getSubmitButton();
+
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
             try {
-                let response;
+                const url = wasCreatingOrder
+                    ? "/api/orders"
+                    : `/api/orders/${editingOrderId}`;
 
-                if (!wasCreatingOrder) {
-                    // Update existing order
-                    response = await fetch(
-                        `/api/orders/${editingOrderId}`,
-                        {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(orderData)
-                        }
-                    );
+                const response = await apiFetch(url, {
+                    method: wasCreatingOrder ? "POST" : "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify(orderData)
+                });
 
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error("Server update error:", errorText);
-
-                        throw new Error("Unable to update order");
-                    }
-
-                    alert("Order updated successfully!");
-
-                } else {
-                    // Create new order
-                    response = await fetch("/api/orders", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(orderData)
-                    });
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error("Server create error:", errorText);
-
-                        throw new Error("Unable to save order");
-                    }
-
-                    alert("Order created successfully!");
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Order save/update server error:", response.status, errorText);
+                    throw new Error(`Unable to save order (${response.status})`);
                 }
 
-                // Clear filters and show the last page after creation
-                if (wasCreatingOrder) {
-                    if (searchInput) {
-                        searchInput.value = "";
-                    }
+                alert(wasCreatingOrder
+                    ? "Order created successfully!"
+                    : "Order updated successfully!");
 
-                    if (statusFilter) {
-                        statusFilter.value = "";
-                    }
+                if (wasCreatingOrder) {
+                    if (searchInput) searchInput.value = "";
+                    if (statusFilter) statusFilter.value = "";
 
                     currentPage = Math.max(
                         1,
@@ -1098,16 +1039,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 closeModal();
-
                 await loadOrders();
 
             } catch (error) {
                 console.error("Order save/update error:", error);
-
                 alert(
-                    "Unable to save order. Check the browser console " +
-                    "and Spring Boot console."
+                    "Unable to save or update order. Check the browser console " +
+                    "and Spring Boot console for the exact error."
                 );
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
             }
         });
     }
@@ -1142,33 +1085,21 @@ document.addEventListener("DOMContentLoaded", function () {
         addOrderButton.addEventListener("click", openOrderModal);
     }
 
-    // ===============================
-    // EMPTY STATE ADD BUTTON
-    // ===============================
-
     if (emptyOrderButton) {
         emptyOrderButton.addEventListener("click", openOrderModal);
     }
 
     // ===============================
-    // CLOSE BUTTON
+    // CLOSE / CANCEL MODAL
     // ===============================
 
     if (closeOrderModal) {
         closeOrderModal.addEventListener("click", closeModal);
     }
 
-    // ===============================
-    // CANCEL BUTTON
-    // ===============================
-
     if (cancelOrderButton) {
         cancelOrderButton.addEventListener("click", closeModal);
     }
-
-    // ===============================
-    // CLICK OUTSIDE MODAL
-    // ===============================
 
     if (orderModal) {
         orderModal.addEventListener("click", function (event) {
@@ -1198,17 +1129,9 @@ document.addEventListener("DOMContentLoaded", function () {
             0
         );
 
-        if (totalOrders) {
-            totalOrders.textContent = total;
-        }
-
-        if (pendingOrders) {
-            pendingOrders.textContent = pending;
-        }
-
-        if (completedOrders) {
-            completedOrders.textContent = completed;
-        }
+        if (totalOrders) totalOrders.textContent = total;
+        if (pendingOrders) pendingOrders.textContent = pending;
+        if (completedOrders) completedOrders.textContent = completed;
 
         if (totalSales) {
             totalSales.textContent = "₹" + sales.toFixed(2);

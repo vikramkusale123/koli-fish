@@ -1,10 +1,10 @@
+
 document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // ELEMENTS
     // =========================
     const modal = document.getElementById("customerModal");
     const addButton = document.getElementById("addCustomerButton");
-    const emptyAddButton = document.getElementById("emptyAddButton");
     const closeButton = document.getElementById("closeModal");
     const cancelButton = document.getElementById("cancelButton");
     const form = document.getElementById("customerForm");
@@ -17,10 +17,54 @@ document.addEventListener("DOMContentLoaded", function () {
     let areas = [];
     let editingCustomerId = null;
 
-    // Pagination settings
+    // =========================
+    // PAGINATION SETTINGS
+    // =========================
     let currentPage = 1;
     let pageSize = 10;
     let paginationContainer = null;
+
+    // =========================
+    // CSRF TOKEN
+    // =========================
+    async function getCsrfHeaders() {
+        const response = await fetch("/api/csrf", {
+            method: "GET",
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                "Unable to obtain CSRF token. Please refresh the page and log in again."
+            );
+        }
+
+        // Use the token from the cookie created by CookieCsrfTokenRepository.
+        const cookie = document.cookie
+            .split("; ")
+            .find(function (item) {
+                return item.startsWith("XSRF-TOKEN=");
+            });
+
+        if (!cookie) {
+            throw new Error(
+                "XSRF-TOKEN cookie is missing. Check SecurityConfig.java and the /api/csrf endpoint."
+            );
+        }
+
+        const token = decodeURIComponent(
+            cookie.substring("XSRF-TOKEN=".length)
+        );
+
+        if (!token) {
+            throw new Error("CSRF token is empty. Please log in again.");
+        }
+
+        return {
+            "X-XSRF-TOKEN": token
+        };
+    }
 
     // =========================
     // INITIAL LOAD
@@ -80,12 +124,8 @@ document.addEventListener("DOMContentLoaded", function () {
         addButton.addEventListener("click", openAddModal);
     }
 
-    if (emptyAddButton) {
-        emptyAddButton.addEventListener("click", openAddModal);
-    }
-
     // =========================
-    // CLOSE MODAL
+    // CLOSE MODALS
     // =========================
     function closeModal() {
         if (!modal) return;
@@ -115,7 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Close modals with Escape
     document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
             closeModal();
@@ -130,7 +169,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     async function loadAreas() {
         try {
-            const response = await fetch("/api/areas");
+            const response = await fetch("/api/areas", {
+                credentials: "same-origin"
+            });
 
             if (!response.ok) {
                 throw new Error("Unable to load areas.");
@@ -148,11 +189,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     function populateAreas() {
         if (areaSelect) {
-            areaSelect.innerHTML = '<option value="">Select Area</option>';
+            areaSelect.innerHTML =
+                '<option value="">Select Area</option>';
         }
 
         if (areaFilter) {
-            areaFilter.innerHTML = '<option value="">All Areas</option>';
+            areaFilter.innerHTML =
+                '<option value="">All Areas</option>';
         }
 
         areas.forEach(function (area) {
@@ -177,7 +220,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     async function loadCustomers() {
         try {
-            const response = await fetch("/api/customers");
+            const response = await fetch("/api/customers", {
+                credentials: "same-origin"
+            });
 
             if (!response.ok) {
                 throw new Error("Unable to load customers.");
@@ -185,10 +230,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             customers = await response.json();
 
-            // Latest-created customers first
-            customers.sort(function (a, b) {
-                return Number(b.id || 0) - Number(a.id || 0);
-            });
+            // Latest-created customers first.
+            sortCustomersLatestFirst();
 
             updateStatistics();
             displayCustomers();
@@ -209,6 +252,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 paginationContainer.innerHTML = "";
             }
         }
+    }
+
+    function sortCustomersLatestFirst() {
+        customers.sort(function (a, b) {
+            return Number(b.id || 0) - Number(a.id || 0);
+        });
     }
 
     // =========================
@@ -293,10 +342,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 </tr>
             `;
 
-            const newEmptyButton = document.getElementById("emptyAddButton");
+            const newEmptyButton =
+                document.getElementById("emptyAddButton");
 
             if (newEmptyButton) {
-                newEmptyButton.addEventListener("click", openAddModal);
+                newEmptyButton.addEventListener(
+                    "click",
+                    openAddModal
+                );
             }
 
             renderPagination(totalRecords, startIndex, totalPages);
@@ -354,8 +407,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderPagination(totalRecords, startIndex, totalPages) {
         if (!paginationContainer) return;
 
-        const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
-        const endRecord = Math.min(startIndex + pageSize, totalRecords);
+        const startRecord =
+            totalRecords === 0 ? 0 : startIndex + 1;
+
+        const endRecord = Math.min(
+            startIndex + pageSize,
+            totalRecords
+        );
 
         const pageButtons = [];
         const firstPage = Math.max(1, currentPage - 2);
@@ -516,7 +574,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // VIEW CUSTOMER DETAILS
     // =========================
     function showCustomerDetails(customer) {
-        const oldModal = document.getElementById("customerViewModal");
+        const oldModal =
+            document.getElementById("customerViewModal");
 
         if (oldModal) oldModal.remove();
 
@@ -550,28 +609,32 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Full Name</label>
-                            <input type="text"
+                            <input
+                                type="text"
                                 value="${escapeAttribute(customer.name || "")}"
                                 readonly>
                         </div>
 
                         <div class="form-group">
                             <label>Mobile Number</label>
-                            <input type="text"
+                            <input
+                                type="text"
                                 value="${escapeAttribute(customer.phone || "")}"
                                 readonly>
                         </div>
 
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="text"
+                            <input
+                                type="text"
                                 value="${escapeAttribute(customer.email || "-")}"
                                 readonly>
                         </div>
 
                         <div class="form-group">
                             <label>Area</label>
-                            <input type="text"
+                            <input
+                                type="text"
                                 value="${escapeAttribute(areaName)}"
                                 readonly>
                         </div>
@@ -587,12 +650,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.body.appendChild(viewModal);
 
-        viewModal.querySelector("#closeCustomerView").addEventListener(
-            "click",
-            function () {
+        viewModal
+            .querySelector("#closeCustomerView")
+            .addEventListener("click", function () {
                 viewModal.remove();
-            }
-        );
+            });
 
         viewModal.addEventListener("click", function (event) {
             if (event.target === viewModal) {
@@ -660,10 +722,18 @@ document.addEventListener("DOMContentLoaded", function () {
         form.addEventListener("submit", async function (event) {
             event.preventDefault();
 
-            const name = document.getElementById("customerName").value.trim();
-            const phone = document.getElementById("customerPhone").value.trim();
-            const email = document.getElementById("customerEmail").value.trim();
-            const address = document.getElementById("customerAddress").value.trim();
+            const name =
+                document.getElementById("customerName").value.trim();
+
+            const phone =
+                document.getElementById("customerPhone").value.trim();
+
+            const email =
+                document.getElementById("customerEmail").value.trim();
+
+            const address =
+                document.getElementById("customerAddress").value.trim();
+
             const areaId = areaSelect ? areaSelect.value : "";
 
             if (!name) {
@@ -696,78 +766,72 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             };
 
-            const submitButton = form.querySelector('button[type="submit"]');
+            const submitButton =
+                form.querySelector('button[type="submit"]');
+
+            const isEditing = editingCustomerId !== null;
 
             if (submitButton) {
                 submitButton.disabled = true;
-                submitButton.textContent = editingCustomerId !== null
+                submitButton.textContent = isEditing
                     ? "Updating..."
                     : "Saving...";
             }
 
             try {
-                let response;
+                const csrfHeaders = await getCsrfHeaders();
 
-                if (editingCustomerId !== null) {
-                    // UPDATE CUSTOMER
-                    response = await fetch(
-                        "/api/customers/" + editingCustomerId,
-                        {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(customerData)
-                        }
-                    );
-                } else {
-                    // CREATE CUSTOMER
-                    response = await fetch("/api/customers", {
-                        method: "POST",
+                const response = await fetch(
+                    isEditing
+                        ? "/api/customers/" + editingCustomerId
+                        : "/api/customers",
+                    {
+                        method: isEditing ? "PUT" : "POST",
+                        credentials: "same-origin",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            ...csrfHeaders
                         },
                         body: JSON.stringify(customerData)
-                    });
-                }
+                    }
+                );
 
                 if (!response.ok) {
                     const errorText = await response.text();
+
                     throw new Error(
-                        errorText || (
-                            editingCustomerId !== null
-                                ? "Unable to update customer."
-                                : "Unable to save customer."
-                        )
+                        errorText ||
+                        (isEditing
+                            ? "Unable to update customer. HTTP " + response.status
+                            : "Unable to save customer. HTTP " + response.status)
                     );
                 }
 
                 const savedCustomer = await response.json();
 
-                if (editingCustomerId !== null) {
+                if (isEditing) {
                     const index = customers.findIndex(function (item) {
-                        return String(item.id) === String(editingCustomerId);
+                        return String(item.id) ===
+                            String(editingCustomerId);
                     });
 
                     if (index !== -1) {
                         customers[index] = savedCustomer;
+                    } else {
+                        customers.push(savedCustomer);
                     }
 
                     alert("Customer updated successfully!");
                 } else {
                     customers.push(savedCustomer);
 
-                    // Clear filters so the new customer can be seen
                     if (searchInput) searchInput.value = "";
                     if (areaFilter) areaFilter.value = "";
 
                     alert("Customer added successfully!");
                 }
 
-                // Keep newest customer records first
-                customers.sort(function (a, b) {
-                    return Number(b.id || 0) - Number(a.id || 0);
-                });
+                sortCustomersLatestFirst();
 
                 closeModal();
                 currentPage = 1;
@@ -775,7 +839,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 displayCustomers();
             } catch (error) {
                 console.error("Customer save error:", error);
-                alert(error.message || "An error occurred while saving.");
+
+                alert(
+                    error.message ||
+                    "An error occurred while saving the customer."
+                );
             } finally {
                 if (submitButton) {
                     submitButton.disabled = false;
@@ -797,8 +865,7 @@ document.addEventListener("DOMContentLoaded", function () {
             total.textContent = customers.length;
         }
 
-        // Your current customer API does not provide an active/inactive field.
-        // Until that field exists, this shows the total customer count.
+        // The current customer API does not expose an active/inactive field.
         if (active) {
             active.textContent = customers.length;
         }
