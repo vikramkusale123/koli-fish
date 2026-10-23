@@ -1,3 +1,4 @@
+
 package com.kolifish.customer.service;
 
 import com.kolifish.customer.entity.Customer;
@@ -59,7 +60,7 @@ public class WhatsAppService {
         return sendOrderStatusMessage(order, completedTemplate);
     }
 
-    // Both templates use {{1}}, {{2}}, and {{3}}
+    // Prepare and send an order status notification
     private boolean sendOrderStatusMessage(
             Order order,
             String templateName) {
@@ -72,6 +73,7 @@ public class WhatsAppService {
         if (phoneNumberId == null || phoneNumberId.isBlank()
                 || accessToken == null || accessToken.isBlank()
                 || graphApiVersion == null || graphApiVersion.isBlank()) {
+
             log.error("WhatsApp configuration is incomplete.");
             return false;
         }
@@ -84,12 +86,14 @@ public class WhatsAppService {
         Customer customer = order.getCustomer();
 
         if (customer == null) {
-            log.warn("WhatsApp notification skipped: customer is null.");
+            log.warn(
+                    "WhatsApp notification skipped: customer is null for order {}.",
+                    order.getId()
+            );
             return false;
         }
 
-        String phone =
-                normalizeIndianPhoneNumber(customer.getPhone());
+        String phone = normalizeIndianPhoneNumber(customer.getPhone());
 
         if (phone == null) {
             log.warn(
@@ -119,7 +123,18 @@ public class WhatsAppService {
         // {{3}} Total order amount
         parameters.add(textParameter(amount));
 
-        return sendTemplateMessage(phone, templateName, parameters, order.getId());
+        log.info(
+                "Preparing WhatsApp notification: order={}, template={}",
+                order.getId(),
+                templateName
+        );
+
+        return sendTemplateMessage(
+                phone,
+                templateName,
+                parameters,
+                order.getId()
+        );
     }
 
     // Send WhatsApp Cloud API request
@@ -165,36 +180,71 @@ public class WhatsAppService {
                     .retrieve()
                     .body(Map.class);
 
-            if (response != null && response.containsKey("messages")) {
-                log.info(
-                        "WhatsApp API accepted template '{}' for order {}.",
-                        templateName,
-                        orderId
-                );
-                return true;
+            // Log the complete API response for diagnosis
+            log.info(
+                    "WhatsApp API full response for order {}: {}",
+                    orderId,
+                    response
+            );
+
+            if (response != null
+                    && response.get("messages") instanceof List<?> messages
+                    && !messages.isEmpty()) {
+
+                Object firstMessage = messages.get(0);
+
+                if (firstMessage instanceof Map<?, ?> message) {
+                    Object messageId = message.get("id");
+                    Object messageStatus = message.get("message_status");
+
+                    log.info(
+                            "WhatsApp result: order={}, template={}, messageId={}, status={}",
+                            orderId,
+                            templateName,
+                            messageId,
+                            messageStatus
+                    );
+
+                    if (messageId != null) {
+                        log.info(
+                                "WhatsApp API accepted the request for order {}. "
+                                        + "Delivery is not yet confirmed.",
+                                orderId
+                        );
+
+                        return true;
+                    }
+                }
             }
 
             log.error(
-                    "WhatsApp API returned no messages confirmation for order {}.",
+                    "WhatsApp API response did not contain a valid message ID "
+                            + "for order {}.",
                     orderId
             );
+
             return false;
 
         } catch (RestClientResponseException e) {
+
             log.error(
                     "WhatsApp API error for order {}. HTTP status: {}. Response: {}",
                     orderId,
                     e.getStatusCode(),
                     e.getResponseBodyAsString()
             );
+
             return false;
 
         } catch (Exception e) {
+
             log.error(
-                    "WhatsApp request failed for order {}.",
+                    "WhatsApp request failed for order {}: {}",
                     orderId,
+                    e.getMessage(),
                     e
             );
+
             return false;
         }
     }
@@ -219,6 +269,7 @@ public class WhatsAppService {
             if (item.getProduct() != null
                     && item.getProduct().getName() != null
                     && !item.getProduct().getName().isBlank()) {
+
                 productName = item.getProduct().getName();
             }
 
@@ -285,6 +336,7 @@ public class WhatsAppService {
 
         // Example: 9823920339 -> 919823920339
         if (digits.length() == 10) {
+
             if (!digits.matches("[6-9][0-9]{9}")) {
                 return null;
             }
@@ -294,6 +346,7 @@ public class WhatsAppService {
 
         // Example: 09823920339 -> 919823920339
         if (digits.length() == 11 && digits.startsWith("0")) {
+
             String mobile = digits.substring(1);
 
             if (!mobile.matches("[6-9][0-9]{9}")) {
@@ -305,6 +358,7 @@ public class WhatsAppService {
 
         // Already in Indian international format
         if (digits.length() == 12 && digits.startsWith("91")) {
+
             String mobile = digits.substring(2);
 
             if (!mobile.matches("[6-9][0-9]{9}")) {

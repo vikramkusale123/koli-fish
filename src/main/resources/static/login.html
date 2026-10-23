@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Koli Fish Management</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #eaf6ff, #f5faff);
+            padding: 20px;
+            color: #1f2937;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            padding: 36px;
+            border-radius: 18px;
+            box-shadow: 0 12px 40px rgba(22, 78, 120, 0.12);
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .brand img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+
+        .brand h1 {
+            font-size: 25px;
+            color: #0878b9;
+            letter-spacing: 1px;
+        }
+
+        .brand p {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 7px;
+        }
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #d1dbe5;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #0785c9;
+            box-shadow: 0 0 0 3px rgba(7, 133, 201, 0.12);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 75px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #0878b9;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: #0878b9;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .login-button:hover {
+            background: #06699f;
+        }
+
+        .message {
+            display: none;
+            padding: 11px 12px;
+            margin-bottom: 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .error {
+            display: block;
+            color: #a61b1b;
+            background: #fff0f0;
+            border: 1px solid #ffd1d1;
+        }
+
+        .success {
+            display: block;
+            color: #166534;
+            background: #effcf3;
+            border: 1px solid #bbf7d0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 26px 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<main class="login-container">
+    <div class="brand">
+        <img src="/images/koli-fish-logo.jpeg"
+             alt="Koli Fish Logo"
+             onerror="this.style.display='none'">
+
+        <h1>KOLI FISH</h1>
+        <p>Management System</p>
+    </div>
+
+    <div id="message" class="message" role="alert"></div>
+
+    <form id="loginForm" action="/login" method="post">
+        <input type="hidden" name="_csrf" id="csrfToken">
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your admin username"
+                    autocomplete="username"
+                    required
+                    autofocus>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+
+            <div class="password-wrapper">
+                <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required>
+
+                <button
+                        type="button"
+                        class="toggle-password"
+                        id="togglePassword">
+                    Show
+                </button>
+            </div>
+        </div>
+
+        <button type="submit" class="login-button">
+            Sign In
+        </button>
+    </form>
+
+    <div class="footer">
+        Koli Fish Management System
+    </div>
+</main>
+
+<script>
+    const message = document.getElementById("message");
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has("error")) {
+        message.textContent =
+            "Login failed. Please check your username and password.";
+        message.className = "message error";
+    } else if (params.has("logout")) {
+        message.textContent = "You have been logged out successfully.";
+        message.className = "message success";
+    }
+
+    document.getElementById("togglePassword").addEventListener(
+        "click",
+        function () {
+            const password = document.getElementById("password");
+            const showing = password.type === "text";
+
+            password.type = showing ? "password" : "text";
+            this.textContent = showing ? "Show" : "Hide";
+        }
+    );
+
+    // Retrieve a CSRF token from Spring Security before login.
+    fetch("/api/csrf", {
+        method: "GET",
+        credentials: "same-origin"
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Could not retrieve security token.");
+        }
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById("csrfToken").value = data.token;
+    })
+    .catch(error => {
+        console.error("CSRF setup failed:", error);
+        message.textContent =
+            "Unable to initialize secure login. Please check the server configuration.";
+        message.className = "message error";
+        document.querySelector(".login-button").disabled = true;
+    });
+</script>
+</body>
+</html>
