@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-
+    // =========================
+    // ELEMENTS
+    // =========================
     const modal = document.getElementById("customerModal");
     const addButton = document.getElementById("addCustomerButton");
     const emptyAddButton = document.getElementById("emptyAddButton");
@@ -23,14 +25,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // INITIAL LOAD
     // =========================
-
+    setupPaginationContainer();
     loadAreas();
     loadCustomers();
 
     // =========================
     // PAGINATION CONTAINER
     // =========================
-
     function setupPaginationContainer() {
         if (!customerTable || paginationContainer) return;
 
@@ -63,7 +64,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // ADD CUSTOMER MODAL
     // =========================
-
     function openAddModal() {
         if (!modal || !form) return;
 
@@ -71,10 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
         form.reset();
 
         const title = modal.querySelector(".modal-header h2");
-
-        if (title) {
-            title.textContent = "Add New Customer";
-        }
+        if (title) title.textContent = "Add New Customer";
 
         modal.classList.add("show");
     }
@@ -90,7 +87,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // CLOSE MODAL
     // =========================
-
     function closeModal() {
         if (!modal) return;
 
@@ -100,10 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (form) form.reset();
 
         const title = modal.querySelector(".modal-header h2");
-
-        if (title) {
-            title.textContent = "Add New Customer";
-        }
+        if (title) title.textContent = "Add New Customer";
     }
 
     if (closeButton) {
@@ -122,21 +115,29 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Close modals with Escape
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeModal();
+
+            const viewModal = document.getElementById("customerViewModal");
+            if (viewModal) viewModal.remove();
+        }
+    });
+
     // =========================
     // LOAD AREAS
     // =========================
-
     async function loadAreas() {
         try {
             const response = await fetch("/api/areas");
 
             if (!response.ok) {
-                throw new Error("Unable to load areas");
+                throw new Error("Unable to load areas.");
             }
 
             areas = await response.json();
             populateAreas();
-
         } catch (error) {
             console.error("Area loading error:", error);
         }
@@ -145,77 +146,89 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // POPULATE AREA DROPDOWNS
     // =========================
-
     function populateAreas() {
-        if (!areaSelect || !areaFilter) return;
+        if (areaSelect) {
+            areaSelect.innerHTML = '<option value="">Select Area</option>';
+        }
 
-        areaSelect.innerHTML =
-            '<option value="">Select Area</option>';
-
-        areaFilter.innerHTML =
-            '<option value="">All Areas</option>';
+        if (areaFilter) {
+            areaFilter.innerHTML = '<option value="">All Areas</option>';
+        }
 
         areas.forEach(function (area) {
-            const option = document.createElement("option");
+            if (areaSelect) {
+                const option = document.createElement("option");
+                option.value = area.id;
+                option.textContent = area.name;
+                areaSelect.appendChild(option);
+            }
 
-            option.value = area.id;
-            option.textContent = area.name;
-
-            areaSelect.appendChild(option);
-
-            const filterOption = document.createElement("option");
-
-            filterOption.value = area.id;
-            filterOption.textContent = area.name;
-
-            areaFilter.appendChild(filterOption);
+            if (areaFilter) {
+                const filterOption = document.createElement("option");
+                filterOption.value = area.id;
+                filterOption.textContent = area.name;
+                areaFilter.appendChild(filterOption);
+            }
         });
     }
 
     // =========================
     // LOAD CUSTOMERS
     // =========================
-
     async function loadCustomers() {
         try {
             const response = await fetch("/api/customers");
 
             if (!response.ok) {
-                throw new Error("Unable to load customers");
+                throw new Error("Unable to load customers.");
             }
 
             customers = await response.json();
 
+            // Latest-created customers first
+            customers.sort(function (a, b) {
+                return Number(b.id || 0) - Number(a.id || 0);
+            });
+
             updateStatistics();
             displayCustomers();
-
         } catch (error) {
             console.error("Customer loading error:", error);
-            alert("Unable to load customers. Please refresh the page.");
+
+            if (customerTable) {
+                customerTable.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty">
+                            Unable to load customers. Please refresh the page.
+                        </td>
+                    </tr>
+                `;
+            }
+
+            if (paginationContainer) {
+                paginationContainer.innerHTML = "";
+            }
         }
     }
 
     // =========================
     // FILTER CUSTOMERS
     // =========================
-
     function getFilteredCustomers() {
         const searchText = searchInput
             ? searchInput.value.toLowerCase().trim()
             : "";
 
-        const selectedArea = areaFilter
-            ? areaFilter.value
-            : "";
+        const selectedArea = areaFilter ? areaFilter.value : "";
 
         return customers.filter(function (customer) {
-            const name = (customer.name || "").toLowerCase();
-            const phone = (customer.phone || "").toLowerCase();
-            const email = (customer.email || "").toLowerCase();
-            const address = (customer.address || "").toLowerCase();
+            const name = String(customer.name || "").toLowerCase();
+            const phone = String(customer.phone || "").toLowerCase();
+            const email = String(customer.email || "").toLowerCase();
+            const address = String(customer.address || "").toLowerCase();
 
             const areaName = customer.area
-                ? (customer.area.name || "").toLowerCase()
+                ? String(customer.area.name || "").toLowerCase()
                 : "";
 
             const matchesSearch =
@@ -227,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const matchesArea =
                 selectedArea === "" ||
-                String(customer.area?.id) === String(selectedArea);
+                String(customer.area?.id ?? "") === String(selectedArea);
 
             return matchesSearch && matchesArea;
         });
@@ -236,7 +249,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // DISPLAY CUSTOMERS
     // =========================
-
     function displayCustomers() {
         if (!customerTable) return;
 
@@ -250,7 +262,6 @@ document.addEventListener("DOMContentLoaded", function () {
             Math.ceil(totalRecords / pageSize)
         );
 
-        // Keep page number valid after searching or filtering.
         currentPage = Math.min(
             Math.max(currentPage, 1),
             totalPages
@@ -272,11 +283,23 @@ document.addEventListener("DOMContentLoaded", function () {
                         <div class="empty-icon">👥</div>
                         <strong>No customers found</strong>
                         <p>Try changing your search or add a new customer.</p>
+                        <button
+                            type="button"
+                            class="primary-button empty-button"
+                            id="emptyAddButton">
+                            + Add Customer
+                        </button>
                     </td>
                 </tr>
             `;
 
-            renderPagination(0, 0, totalPages);
+            const newEmptyButton = document.getElementById("emptyAddButton");
+
+            if (newEmptyButton) {
+                newEmptyButton.addEventListener("click", openAddModal);
+            }
+
+            renderPagination(totalRecords, startIndex, totalPages);
             return;
         }
 
@@ -289,31 +312,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
             row.innerHTML = `
                 <td>
-                    <strong>${escapeHtml(customer.name)}</strong>
+                    <strong>${escapeHtml(customer.name || "-")}</strong>
                 </td>
-
-                <td>${escapeHtml(customer.phone)}</td>
-
-                <td>
-                    ${customer.email
-                        ? escapeHtml(customer.email)
-                        : "-"}
-                </td>
-
+                <td>${escapeHtml(customer.phone || "-")}</td>
+                <td>${escapeHtml(customer.email || "-")}</td>
                 <td>${escapeHtml(areaName)}</td>
-
-                <td>0</td>
-
+                <td>${Number(customer.orderCount || 0)}</td>
                 <td class="customer-actions">
-                    <button
-                        type="button"
-                        class="table-action view-button">
+                    <button type="button" class="table-action view-button">
                         View
                     </button>
-
-                    <button
-                        type="button"
-                        class="table-action edit-button">
+                    <button type="button" class="table-action edit-button">
                         Edit
                     </button>
                 </td>
@@ -342,21 +351,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // PAGINATION CONTROLS
     // =========================
-
     function renderPagination(totalRecords, startIndex, totalPages) {
         if (!paginationContainer) return;
 
-        const startRecord = totalRecords === 0
-            ? 0
-            : startIndex + 1;
-
-        const endRecord = Math.min(
-            startIndex + pageSize,
-            totalRecords
-        );
+        const startRecord = totalRecords === 0 ? 0 : startIndex + 1;
+        const endRecord = Math.min(startIndex + pageSize, totalRecords);
 
         const pageButtons = [];
-
         const firstPage = Math.max(1, currentPage - 2);
         const lastPage = Math.min(totalPages, currentPage + 2);
 
@@ -391,11 +392,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 display:flex;
                 align-items:center;
                 flex-wrap:wrap;
-                gap:10px;
+                gap:12px;
             ">
                 <span style="font-size:13px;color:#64748b;">
-                    Showing ${startRecord}–${endRecord}
-                    of ${totalRecords} customers
+                    Showing ${startRecord}–${endRecord} of ${totalRecords} customers
                 </span>
 
                 <label style="
@@ -403,9 +403,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     align-items:center;
                     gap:6px;
                     font-size:13px;
+                    color:#475569;
                 ">
                     Rows per page
-
                     <select id="customerPageSize" style="
                         padding:6px 8px;
                         border:1px solid #cbd5e1;
@@ -437,11 +437,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 ${pageButtons.map(function (item) {
                     if (item.page === undefined) {
-                        return `
-                            <span style="padding:6px;color:#64748b;">
-                                …
-                            </span>
-                        `;
+                        return `<span style="padding:6px;color:#64748b;">…</span>`;
                     }
 
                     const active = item.page === currentPage;
@@ -475,7 +471,6 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
 
-        // Style Previous and Next.
         paginationContainer
             .querySelectorAll(".pagination-button")
             .forEach(function (button) {
@@ -494,7 +489,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
 
-        // Change page size.
         const pageSizeSelect =
             paginationContainer.querySelector("#customerPageSize");
 
@@ -506,7 +500,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-        // Change page number.
         paginationContainer
             .querySelectorAll("button[data-page]")
             .forEach(function (button) {
@@ -522,10 +515,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // VIEW CUSTOMER DETAILS
     // =========================
-
     function showCustomerDetails(customer) {
-        const oldModal =
-            document.getElementById("customerViewModal");
+        const oldModal = document.getElementById("customerViewModal");
 
         if (oldModal) oldModal.remove();
 
@@ -549,42 +540,38 @@ document.addEventListener("DOMContentLoaded", function () {
                     <button
                         type="button"
                         class="modal-close"
-                        id="closeCustomerView">
+                        id="closeCustomerView"
+                        aria-label="Close customer details">
                         ×
                     </button>
                 </div>
 
                 <div style="padding:24px;">
                     <div class="form-grid">
-
                         <div class="form-group">
                             <label>Full Name</label>
-                            <input
-                                type="text"
-                                value="${escapeAttribute(customer.name)}"
+                            <input type="text"
+                                value="${escapeAttribute(customer.name || "")}"
                                 readonly>
                         </div>
 
                         <div class="form-group">
                             <label>Mobile Number</label>
-                            <input
-                                type="text"
-                                value="${escapeAttribute(customer.phone)}"
+                            <input type="text"
+                                value="${escapeAttribute(customer.phone || "")}"
                                 readonly>
                         </div>
 
                         <div class="form-group">
                             <label>Email</label>
-                            <input
-                                type="text"
+                            <input type="text"
                                 value="${escapeAttribute(customer.email || "-")}"
                                 readonly>
                         </div>
 
                         <div class="form-group">
                             <label>Area</label>
-                            <input
-                                type="text"
+                            <input type="text"
                                 value="${escapeAttribute(areaName)}"
                                 readonly>
                         </div>
@@ -593,7 +580,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             <label>Address</label>
                             <textarea rows="3" readonly>${escapeHtml(customer.address || "-")}</textarea>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -601,10 +587,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.body.appendChild(viewModal);
 
-        viewModal.querySelector("#closeCustomerView")
-            .addEventListener("click", function () {
+        viewModal.querySelector("#closeCustomerView").addEventListener(
+            "click",
+            function () {
                 viewModal.remove();
-            });
+            }
+        );
 
         viewModal.addEventListener("click", function (event) {
             if (event.target === viewModal) {
@@ -616,7 +604,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // EDIT CUSTOMER
     // =========================
-
     function editCustomer(customer) {
         if (!modal || !form) return;
 
@@ -636,15 +623,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (areaSelect) {
             areaSelect.value = customer.area
-                ? customer.area.id
+                ? String(customer.area.id)
                 : "";
         }
 
         const title = modal.querySelector(".modal-header h2");
-
-        if (title) {
-            title.textContent = "Edit Customer";
-        }
+        if (title) title.textContent = "Edit Customer";
 
         modal.classList.add("show");
     }
@@ -652,7 +636,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // SEARCH
     // =========================
-
     if (searchInput) {
         searchInput.addEventListener("input", function () {
             currentPage = 1;
@@ -663,7 +646,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // AREA FILTER
     // =========================
-
     if (areaFilter) {
         areaFilter.addEventListener("change", function () {
             currentPage = 1;
@@ -674,26 +656,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // SAVE / UPDATE CUSTOMER
     // =========================
-
     if (form) {
         form.addEventListener("submit", async function (event) {
             event.preventDefault();
 
-            const name =
-                document.getElementById("customerName").value.trim();
-
-            const phone =
-                document.getElementById("customerPhone").value.trim();
-
-            const email =
-                document.getElementById("customerEmail").value.trim();
-
-            const address =
-                document.getElementById("customerAddress").value.trim();
-
-            const areaId = areaSelect
-                ? areaSelect.value
-                : "";
+            const name = document.getElementById("customerName").value.trim();
+            const phone = document.getElementById("customerPhone").value.trim();
+            const email = document.getElementById("customerEmail").value.trim();
+            const address = document.getElementById("customerAddress").value.trim();
+            const areaId = areaSelect ? areaSelect.value : "";
 
             if (!name) {
                 alert("Please enter customer name.");
@@ -725,6 +696,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             };
 
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = editingCustomerId !== null
+                    ? "Updating..."
+                    : "Saving...";
+            }
+
             try {
                 let response;
 
@@ -740,27 +720,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             body: JSON.stringify(customerData)
                         }
                     );
-
-                    if (!response.ok) {
-                        throw new Error("Unable to update customer.");
-                    }
-
-                    const updatedCustomer = await response.json();
-
-                    const index = customers.findIndex(function (item) {
-                        return String(item.id) === String(editingCustomerId);
-                    });
-
-                    if (index !== -1) {
-                        customers[index] = updatedCustomer;
-                    }
-
-                    closeModal();
-                    updateStatistics();
-                    displayCustomers();
-
-                    alert("Customer updated successfully!");
-
                 } else {
                     // CREATE CUSTOMER
                     response = await fetch("/api/customers", {
@@ -770,32 +729,58 @@ document.addEventListener("DOMContentLoaded", function () {
                         },
                         body: JSON.stringify(customerData)
                     });
+                }
 
-                    if (!response.ok) {
-                        throw new Error("Unable to save customer.");
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(
+                        errorText || (
+                            editingCustomerId !== null
+                                ? "Unable to update customer."
+                                : "Unable to save customer."
+                        )
+                    );
+                }
+
+                const savedCustomer = await response.json();
+
+                if (editingCustomerId !== null) {
+                    const index = customers.findIndex(function (item) {
+                        return String(item.id) === String(editingCustomerId);
+                    });
+
+                    if (index !== -1) {
+                        customers[index] = savedCustomer;
                     }
 
-                    const savedCustomer = await response.json();
-
+                    alert("Customer updated successfully!");
+                } else {
                     customers.push(savedCustomer);
 
-                    // Clear filters so the new customer can be seen.
+                    // Clear filters so the new customer can be seen
                     if (searchInput) searchInput.value = "";
                     if (areaFilter) areaFilter.value = "";
-
-                    // Navigate to the last page containing the new customer.
-                    currentPage = Math.ceil(customers.length / pageSize) || 1;
-
-                    closeModal();
-                    updateStatistics();
-                    displayCustomers();
 
                     alert("Customer added successfully!");
                 }
 
+                // Keep newest customer records first
+                customers.sort(function (a, b) {
+                    return Number(b.id || 0) - Number(a.id || 0);
+                });
+
+                closeModal();
+                currentPage = 1;
+                updateStatistics();
+                displayCustomers();
             } catch (error) {
                 console.error("Customer save error:", error);
                 alert(error.message || "An error occurred while saving.");
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Save Customer";
+                }
             }
         });
     }
@@ -803,7 +788,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // STATISTICS
     // =========================
-
     function updateStatistics() {
         const total = document.getElementById("totalCustomers");
         const active = document.getElementById("activeCustomers");
@@ -813,6 +797,8 @@ document.addEventListener("DOMContentLoaded", function () {
             total.textContent = customers.length;
         }
 
+        // Your current customer API does not provide an active/inactive field.
+        // Until that field exists, this shows the total customer count.
         if (active) {
             active.textContent = customers.length;
         }
@@ -820,7 +806,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const uniqueAreas = new Set(
             customers
                 .filter(function (customer) {
-                    return customer.area;
+                    return customer.area && customer.area.id != null;
                 })
                 .map(function (customer) {
                     return customer.area.id;
@@ -835,7 +821,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // HTML ESCAPING
     // =========================
-
     function escapeHtml(value) {
         const div = document.createElement("div");
         div.textContent = value ?? "";
@@ -847,7 +832,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .replace(/&/g, "&amp;")
             .replace(/"/g, "&quot;")
             .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
+            .replace(/>/g, "&gt;")
+            .replace(/'/g, "&#39;");
     }
-
 });
