@@ -13,6 +13,10 @@
     <link rel="stylesheet"
           href="../css/style.css">
 
+    <!-- Logout dropdown styling -->
+    <link rel="stylesheet"
+          href="../css/logout.css">
+
 </head>
 
 
@@ -114,26 +118,15 @@
 
 
             <!-- ANALYTICS -->
-
             <div class="menu-title">
                 ANALYTICS
             </div>
 
-
-            <!-- REPORTS -->
-
-            <div class="menu-item disabled-menu">
-                <span>📊</span>
-                Reports
-            </div>
-
-
-            <!-- SETTINGS -->
-
-            <div class="menu-item disabled-menu">
-                <span>⚙</span>
-                Settings
-            </div>
+            <!-- DAILY SALES -->
+            <a href="/pages/daily-sales.html" class="menu-item">
+                <span>₹</span>
+                Daily Sales
+            </a>
 
 
         </nav>
@@ -165,31 +158,60 @@
             </div>
 
 
-            <div class="user-box">
+            <!-- ================= ADMIN PROFILE / LOGOUT ================= -->
 
+            <div class="profile-menu-container">
 
-                <div class="avatar">
-                    A
-                </div>
+                <button
+                        type="button"
+                        class="user-box"
+                        id="profileMenuButton"
+                        aria-expanded="false"
+                        aria-controls="profileDropdown"
+                        aria-label="Open administrator menu">
 
+                    <div class="avatar">
+                        A
+                    </div>
 
-                <div class="user-info">
+                    <div class="user-info">
 
-                    <strong>
-                        Admin
-                    </strong>
+                        <strong>
+                            Admin
+                        </strong>
 
-                    <span>
-                        Administrator
+                        <span>
+                            Administrator
+                        </span>
+
+                    </div>
+
+                    <span class="more" aria-hidden="true">
+                        ⋮
                     </span>
 
+                </button>
+
+
+                <div
+                        class="profile-dropdown"
+                        id="profileDropdown"
+                        hidden>
+
+                    <button
+                            type="button"
+                            id="logoutButton"
+                            class="logout-button">
+
+                        <span class="logout-icon" aria-hidden="true">↪</span>
+
+                        <span>
+                            Logout
+                        </span>
+
+                    </button>
+
                 </div>
-
-
-                <span class="more">
-                    ⋮
-                </span>
-
 
             </div>
 
@@ -229,7 +251,7 @@
             <div class="top-actions">
 
 
-                <button class="icon-button">
+                <button type="button" class="icon-button">
 
                     🔔
 
@@ -275,6 +297,7 @@
 
 
                 <button
+                        type="button"
                         class="primary-button"
                         id="addOrderButton">
 
@@ -554,6 +577,7 @@
                                 </p>
 
                                 <button
+                                        type="button"
                                         class="primary-button empty-button"
                                         id="emptyOrderButton">
 
@@ -615,6 +639,7 @@
 
 
             <button
+                    type="button"
                     class="modal-close"
                     id="closeOrderModal">
 
@@ -637,7 +662,7 @@
 
                 <div class="form-group full">
 
-                    <label>
+                    <label for="orderCustomer">
                         Customer *
                     </label>
 
@@ -659,7 +684,7 @@
 
                 <div class="form-group">
 
-                    <label>
+                    <label for="orderDate">
                         Order Date *
                     </label>
 
@@ -676,7 +701,7 @@
 
                 <div class="form-group">
 
-                    <label>
+                    <label for="orderStatus">
                         Status *
                     </label>
 
@@ -729,6 +754,7 @@
                         </select>
 
 
+
                         <!-- QUANTITY -->
 
                         <input
@@ -737,6 +763,7 @@
                                 placeholder="Enter quantity"
                                 min="0.1"
                                 step="0.1">
+
 
 
                         <!-- ADD FISH -->
@@ -767,7 +794,7 @@
 
                 <div class="form-group">
 
-                    <label>
+                    <label for="orderTotal">
                         Total
                     </label>
 
@@ -785,7 +812,7 @@
 
                 <div class="form-group full">
 
-                    <label>
+                    <label for="orderNotes">
                         Notes
                     </label>
 
@@ -839,7 +866,11 @@
 <!-- ================= JAVASCRIPT ================= -->
 
 <script src="../js/orders.js"></script>
+
 <script src="../js/common.js"></script>
+
+<!-- Admin dropdown and secure logout -->
+<script src="../js/logout.js"></script>
 
 
 </body>

@@ -1,0 +1,112 @@
+/* Daily Sales page-specific styles */
+.daily-sales-date {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.daily-sales-date label {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.daily-sales-date input,
+.sales-pagination-controls select {
+    min-height: 40px;
+    padding: 8px 11px;
+    border: 1px solid #dbe3ed;
+    border-radius: 8px;
+    background: #fff;
+    color: #1e293b;
+    font: inherit;
+}
+
+.daily-sales-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.daily-sales-panel-header {
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.sales-message {
+    margin: 16px 20px 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 14px;
+}
+
+.sales-message.error {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.sales-products-cell {
+    min-width: 220px;
+    max-width: 360px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.daily-sales-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 16px 20px;
+    border-top: 1px solid #e8edf3;
+    color: #64748b;
+    font-size: 13px;
+    flex-wrap: wrap;
+}
+
+.sales-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sales-pagination-controls .secondary-button {
+    min-height: 36px;
+    padding: 7px 12px;
+}
+
+.sales-pagination-controls .secondary-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+    .daily-sales-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .daily-sales-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .daily-sales-date {
+        width: 100%;
+    }
+
+    .daily-sales-date input {
+        flex: 1;
+    }
+
+    .daily-sales-pagination {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .sales-pagination-controls {
+        width: 100%;
+    }
+}

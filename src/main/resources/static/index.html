@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="/css/logout.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 
 <body>
@@ -20,11 +19,9 @@
 <div class="app">
 
     <!-- ================= SIDEBAR ================= -->
-
     <aside class="sidebar">
 
         <!-- BRAND -->
-
         <div class="brand">
 
             <div class="brand-icon">
@@ -38,9 +35,7 @@
 
         </div>
 
-
         <!-- MAIN MENU -->
-
         <div class="menu-title">
             MAIN MENU
         </div>
@@ -48,76 +43,52 @@
         <nav>
 
             <!-- DASHBOARD -->
-
             <a href="/index.html" class="menu-item active">
                 <span>▦</span>
                 Dashboard
             </a>
 
-
             <!-- CUSTOMERS -->
-
             <a href="/pages/customers.html" class="menu-item">
                 <span>👥</span>
                 Customers
             </a>
 
-
             <!-- ORDERS -->
-
             <a href="/pages/orders.html" class="menu-item">
                 <span>🧾</span>
                 Orders
             </a>
 
-
             <!-- PRODUCTS -->
-
             <a href="/pages/products.html" class="menu-item">
                 <span>🐟</span>
                 Products
             </a>
 
-
             <!-- AREAS -->
-
             <a href="/pages/areas.html" class="menu-item">
                 <span>📍</span>
                 Areas
             </a>
 
-
             <!-- ANALYTICS -->
-
             <div class="menu-title">
                 ANALYTICS
             </div>
 
-
-            <!-- REPORTS -->
-
-            <div class="menu-item disabled-menu">
-                <span>📊</span>
-                Reports
-            </div>
-
-
-            <!-- SETTINGS -->
-
-            <div class="menu-item disabled-menu">
-                <span>⚙</span>
-                Settings
-            </div>
+            <!-- DAILY SALES -->
+            <a href="/pages/daily-sales.html" class="menu-item">
+                <span>₹</span>
+                Daily Sales
+            </a>
 
         </nav>
 
-
         <!-- SIDEBAR BOTTOM -->
-
         <div class="sidebar-bottom">
 
             <!-- HELP -->
-
             <div class="help-box">
 
                 <div class="help-icon">
@@ -125,190 +96,144 @@
                 </div>
 
                 <div>
-                    <strong>
-                        Need help?
-                    </strong>
-
-                    <p>
-                        Contact support
-                    </p>
+                    <strong>Need help?</strong>
+                    <p>Contact support</p>
                 </div>
 
             </div>
 
+            <!-- ADMIN PROFILE AND LOGOUT DROPDOWN -->
+            <div class="profile-menu-container">
 
-            <!-- USER -->
+                <button
+                        type="button"
+                        class="user-box"
+                        id="profileMenuButton"
+                        aria-expanded="false"
+                        aria-controls="profileDropdown"
+                        aria-label="Open administrator menu">
 
-            <div class="user-box">
+                    <div class="avatar">
+                        A
+                    </div>
 
-                <div class="avatar">
-                    A
+                    <div class="user-info">
+                        <strong>Admin</strong>
+                        <span>Administrator</span>
+                    </div>
+
+                    <span class="more" aria-hidden="true">
+                        ⋮
+                    </span>
+
+                </button>
+
+                <div
+                        class="profile-dropdown"
+                        id="profileDropdown"
+                        hidden>
+
+                    <button
+                            type="button"
+                            id="logoutButton"
+                            class="logout-button">
+
+                        <span class="logout-icon" aria-hidden="true">↪</span>
+                        <span>Logout</span>
+
+                    </button>
+
                 </div>
-
-
-                <div class="user-info">
-
-                    <strong>
-                        Admin
-                    </strong>
-
-                    <span>
-                    Administrator
-                </span>
-
-                </div>
-
-
-                <span class="more">
-                ⋮
-            </span>
 
             </div>
-
-            <!-- LOGOUT BUTTON -->
-            <button type="button" id="logoutButton" class="logout-button">
-                <span class="logout-icon" aria-hidden="true">↪</span>
-                <span>Logout</span>
-            </button>
 
         </div>
 
     </aside>
 
-
     <!-- ================= MAIN CONTENT ================= -->
-
     <main class="main">
 
-
-        <!-- ================= TOP BAR ================= -->
-
+        <!-- TOP BAR -->
         <header class="topbar">
 
             <div class="search">
 
-            <span>
-                ⌕
-            </span>
+                <span>⌕</span>
 
                 <input
                         type="text"
                         placeholder="Search customers, orders..."
-                >
+                        aria-label="Search customers and orders">
 
-                <kbd>
-                    ⌘ K
-                </kbd>
+                <kbd>⌘ K</kbd>
 
             </div>
 
-
             <div class="top-actions">
 
-                <button class="icon-button">
-
+                <button class="icon-button" type="button" aria-label="Notifications">
                     🔔
-
                     <span class="notification"></span>
-
                 </button>
 
-
-                <div class="date" id="currentDate">
-
-                </div>
+                <div class="date" id="currentDate"></div>
 
             </div>
 
         </header>
 
-
         <!-- ================= CONTENT ================= -->
-
         <section class="content">
 
-
             <!-- PAGE HEADER -->
-
             <div class="page-header">
 
                 <div>
-
-                    <h1 id="greeting">
-                        Good morning, Admin 👋
-                    </h1>
+                    <h1 id="greeting">Good morning, Admin 👋</h1>
 
                     <p>
                         Here's what's happening with your business today.
                     </p>
-
                 </div>
 
             </div>
 
-
             <!-- ================= STATISTICS ================= -->
-
             <div class="stats-grid">
 
-
                 <!-- CUSTOMERS -->
-
                 <div class="stat-card">
 
                     <div class="stat-top">
 
                         <div>
-
-                        <span class="stat-title">
-                            Total Customers
-                        </span>
-
-                            <h2 id="customerCount">
-                                0
-                            </h2>
-
+                            <span class="stat-title">Total Customers</span>
+                            <h2 id="customerCount">0</h2>
                         </div>
-
 
                         <div class="stat-icon customer">
                             👥
                         </div>
 
-                    </div>
-
+                    </div>F
 
                     <div class="stat-footer positive">
-
                         ↑ 12.5%
-
-                        <span>
-                        vs last month
-                    </span>
-
+                        <span>vs last month</span>
                     </div>
 
                 </div>
 
-
                 <!-- ORDERS -->
-
                 <div class="stat-card">
 
                     <div class="stat-top">
 
                         <div>
-
-                        <span class="stat-title">
-                            Total Orders
-                        </span>
-
-                            <h2 id="orderCount">
-                                0
-                            </h2>
-
+                            <span class="stat-title">Total Orders</span>
+                            <h2 id="orderCount">0</h2>
                         </div>
-
 
                         <div class="stat-icon order">
                             🧾
@@ -316,38 +241,22 @@
 
                     </div>
 
-
                     <div class="stat-footer positive">
-
                         ↑ 8.2%
-
-                        <span>
-                        vs last month
-                    </span>
-
+                        <span>vs last month</span>
                     </div>
 
                 </div>
 
-
                 <!-- PRODUCTS -->
-
                 <div class="stat-card">
 
                     <div class="stat-top">
 
                         <div>
-
-                        <span class="stat-title">
-                            Total Products
-                        </span>
-
-                            <h2 id="productCount">
-                                0
-                            </h2>
-
+                            <span class="stat-title">Total Products</span>
+                            <h2 id="productCount">0</h2>
                         </div>
-
 
                         <div class="stat-icon product">
                             🐟
@@ -355,32 +264,21 @@
 
                     </div>
 
-
                     <div class="stat-footer">
                         Active products
                     </div>
 
                 </div>
 
-
                 <!-- SALES -->
-
                 <div class="stat-card">
 
                     <div class="stat-top">
 
                         <div>
-
-                        <span class="stat-title">
-                            Total Sales
-                        </span>
-
-                            <h2 id="salesCount">
-                                ₹0
-                            </h2>
-
+                            <span class="stat-title">Total Sales</span>
+                            <h2 id="salesCount">₹0</h2>
                         </div>
-
 
                         <div class="stat-icon sales">
                             ₹
@@ -388,233 +286,134 @@
 
                     </div>
 
-
                     <div class="stat-footer positive">
-
                         ↑ 15.4%
-
-                        <span>
-                        vs last month
-                    </span>
-
+                        <span>vs last month</span>
                     </div>
 
                 </div>
 
             </div>
 
-
             <!-- ================= CHARTS ================= -->
-
             <div class="charts-grid">
 
-
                 <!-- SALES CHART -->
-
                 <div class="panel sales-panel">
 
                     <div class="panel-header">
 
                         <div>
-
-                            <h3>
-                                Sales Overview
-                            </h3>
-
-                            <p>
-                                Monthly sales performance
-                            </p>
-
+                            <h3>Sales Overview</h3>
+                            <p>Monthly sales performance</p>
                         </div>
 
-
-                        <select>
-
-                            <option>
-                                Last 7 months
-                            </option>
-
-                            <option>
-                                Last 30 days
-                            </option>
-
-                            <option>
-                                This year
-                            </option>
-
+                        <select aria-label="Sales chart period">
+                            <option>Last 7 months</option>
+                            <option>Last 30 days</option>
+                            <option>This year</option>
                         </select>
 
                     </div>
 
-
                     <div class="chart-container">
-
                         <canvas id="salesChart"></canvas>
-
                     </div>
 
                 </div>
-
 
                 <!-- FISH SALES -->
-
                 <div class="panel">
 
                     <div class="panel-header">
 
                         <div>
-
-                            <h3>
-                                Fish Sales
-                            </h3>
-
-                            <p>
-                                Products sold
-                            </p>
-
+                            <h3>Fish Sales</h3>
+                            <p>Products sold</p>
                         </div>
 
-
                         <button
+                                type="button"
                                 class="view-button"
                                 onclick="window.location.href='/pages/products.html'">
-
                             View all
-
                         </button>
 
                     </div>
 
-
                     <div class="pie-container">
-
                         <canvas id="fishChart"></canvas>
-
                     </div>
 
                 </div>
 
-
                 <!-- CUSTOMER DISTRIBUTION -->
-
                 <div class="panel">
 
                     <div class="panel-header">
 
                         <div>
-
-                            <h3>
-                                Customer Distribution
-                            </h3>
-
-                            <p>
-                                Customers by area
-                            </p>
-
+                            <h3>Customer Distribution</h3>
+                            <p>Customers by area</p>
                         </div>
 
-
                         <button
+                                type="button"
                                 class="view-button"
                                 onclick="window.location.href='/pages/customers.html'">
-
                             View customers
-
                         </button>
 
                     </div>
 
-
                     <div class="pie-container">
-
                         <canvas id="customerAreaChart"></canvas>
-
                     </div>
 
                 </div>
 
             </div>
 
-
             <!-- ================= RECENT ORDERS ================= -->
-
             <div class="panel orders-panel">
 
                 <div class="panel-header">
 
                     <div>
-
-                        <h3>
-                            Recent Orders
-                        </h3>
-
-                        <p>
-                            Latest customer orders
-                        </p>
-
+                        <h3>Recent Orders</h3>
+                        <p>Latest customer orders</p>
                     </div>
 
-
                     <button
+                            type="button"
                             class="view-button"
                             onclick="window.location.href='/pages/orders.html'">
-
                         View all orders →
-
                     </button>
 
                 </div>
-
 
                 <div class="table-wrapper">
 
                     <table>
 
                         <thead>
-
                         <tr>
-
-                            <th>
-                                ORDER
-                            </th>
-
-                            <th>
-                                CUSTOMER
-                            </th>
-
-                            <th>
-                                AREA
-                            </th>
-
-                            <th>
-                                PRODUCT
-                            </th>
-
-                            <th>
-                                AMOUNT
-                            </th>
-
-                            <th>
-                                STATUS
-                            </th>
-
+                            <th>ORDER</th>
+                            <th>CUSTOMER</th>
+                            <th>AREA</th>
+                            <th>PRODUCT</th>
+                            <th>AMOUNT</th>
+                            <th>STATUS</th>
                         </tr>
-
                         </thead>
-
 
                         <tbody id="ordersTable">
 
                         <tr>
-
-                            <td
-                                    colspan="6"
-                                    class="empty">
-
+                            <td colspan="6" class="empty">
                                 No orders yet
-
                             </td>
-
                         </tr>
 
                         </tbody>
@@ -625,20 +424,16 @@
 
             </div>
 
-
         </section>
 
     </main>
 
-
 </div>
 
 <!-- ================= DASHBOARD JAVASCRIPT ================= -->
-
 <script src="/js/dashboard.js"></script>
 <script src="/js/common.js"></script>
 <script src="/js/logout.js"></script>
 
 </body>
-
 </html>

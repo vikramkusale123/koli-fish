@@ -1,21 +1,64 @@
 
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("logout.js loaded on:", window.location.pathname);
+
+    const profileButton = document.getElementById("profileMenuButton");
+    const dropdown = document.getElementById("profileDropdown");
     const logoutButton = document.getElementById("logoutButton");
 
-    if (!logoutButton) {
-        console.error("Logout button not found.");
+    if (!profileButton || !dropdown || !logoutButton) {
+        console.error("Logout menu elements missing:", {
+            profileButton: !!profileButton,
+            dropdown: !!dropdown,
+            logoutButton: !!logoutButton
+        });
         return;
     }
 
+    // Open or close the dropdown.
+    profileButton.addEventListener("click", function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        dropdown.hidden = !dropdown.hidden;
+
+        profileButton.setAttribute(
+            "aria-expanded",
+            String(!dropdown.hidden)
+        );
+
+        console.log("Dropdown open:", !dropdown.hidden);
+    });
+
+    // Keep clicks inside the dropdown from closing it.
+    dropdown.addEventListener("click", function (event) {
+        event.stopPropagation();
+    });
+
+    // Close when clicking outside.
+    document.addEventListener("click", function () {
+        dropdown.hidden = true;
+        profileButton.setAttribute("aria-expanded", "false");
+    });
+
+    // Close with Escape.
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            dropdown.hidden = true;
+            profileButton.setAttribute("aria-expanded", "false");
+        }
+    });
+
+    // Log out.
     logoutButton.addEventListener("click", async function () {
-        if (!confirm("Are you sure you want to log out?")) {
+        if (!window.confirm("Are you sure you want to log out?")) {
             return;
         }
 
         logoutButton.disabled = true;
+        logoutButton.textContent = "Logging out...";
 
         try {
-            // Get a fresh CSRF token from Spring Security.
             const csrfResponse = await fetch("/api/csrf", {
                 method: "GET",
                 credentials: "same-origin",
@@ -24,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!csrfResponse.ok) {
                 throw new Error(
-                    "Could not obtain CSRF token. HTTP " +
+                    "Could not get security token. HTTP " +
                     csrfResponse.status
                 );
             }
@@ -32,11 +75,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const csrfData = await csrfResponse.json();
 
             if (!csrfData.token || !csrfData.headerName) {
-                throw new Error("CSRF token is missing from the response.");
+                throw new Error("CSRF token or header name is missing.");
             }
 
-            // Submit logout with the token returned by Spring Security.
-            const logoutResponse = await fetch("/logout", {
+            const response = await fetch("/logout", {
                 method: "POST",
                 credentials: "same-origin",
                 headers: {
@@ -45,19 +87,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 redirect: "follow"
             });
 
-            if (logoutResponse.redirected) {
-                window.location.replace(logoutResponse.url);
-            } else if (logoutResponse.ok) {
-                window.location.replace("/login.html?logout");
-            } else {
-                throw new Error(
-                    "Logout failed. HTTP " + logoutResponse.status
-                );
+            if (response.redirected) {
+                window.location.replace(response.url);
+                return;
             }
+
+            if (response.ok) {
+                window.location.replace("/login.html?logout");
+                return;
+            }
+
+            throw new Error("Logout failed. HTTP " + response.status);
+
         } catch (error) {
             console.error("Logout error:", error);
-            alert(error.message || "Unable to log out. Please try again.");
+            window.alert(error.message || "Unable to log out.");
+
             logoutButton.disabled = false;
+            logoutButton.innerHTML =
+                '<span class="logout-icon" aria-hidden="true">↪</span>' +
+                '<span>Logout</span>';
         }
     });
 });

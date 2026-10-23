@@ -1,673 +1,399 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Koli Fish | Customers</title>
 
-    <link rel="stylesheet"
-          href="../css/style.css">
-
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/logout.css">
 </head>
-
 
 <body>
 
 <div class="app">
 
-
     <!-- ================= SIDEBAR ================= -->
-
     <aside class="sidebar">
-
-
         <div class="brand">
-
             <div class="brand-icon">
                 <img src="/images/koli-fish-logo.jpeg" alt="Koli Fish Logo">
             </div>
-
             <div>
-
                 <h2>KOLI FISH</h2>
-
-                <span>
-                    Management
-                </span>
-
+                <span>Management</span>
             </div>
-
         </div>
 
-
-        <div class="menu-title">
-            MAIN MENU
-        </div>
-
+        <div class="menu-title">MAIN MENU</div>
 
         <nav>
-
-
             <!-- DASHBOARD -->
-
-            <a href="/index.html"
-               class="menu-item">
-
+            <a href="/index.html" class="menu-item">
                 <span>▦</span>
-
                 Dashboard
-
             </a>
-
 
             <!-- CUSTOMERS -->
-
-            <a href="/pages/customers.html"
-               class="menu-item active">
-
+            <a href="/pages/customers.html" class="menu-item active">
                 <span>👥</span>
-
                 Customers
-
             </a>
-
 
             <!-- ORDERS -->
-
-            <a href="/pages/orders.html"
-               class="menu-item">
-
+            <a href="/pages/orders.html" class="menu-item">
                 <span>🧾</span>
-
                 Orders
-
             </a>
-
 
             <!-- PRODUCTS -->
-
-            <a href="/pages/products.html"
-               class="menu-item">
-
+            <a href="/pages/products.html" class="menu-item">
                 <span>🐟</span>
-
                 Products
-
             </a>
-
 
             <!-- AREAS -->
-
-            <a href="/pages/areas.html"
-               class="menu-item">
-
+            <a href="/pages/areas.html" class="menu-item">
                 <span>📍</span>
-
                 Areas
-
             </a>
 
-
             <!-- ANALYTICS -->
-
             <div class="menu-title">
                 ANALYTICS
             </div>
 
-
-            <!-- REPORTS -->
-
-            <div class="menu-item disabled-menu">
-                <span>📊</span>
-                Reports
-            </div>
-
-
-            <!-- SETTINGS -->
-
-            <div class="menu-item disabled-menu">
-                <span>⚙</span>
-                Settings
-            </div>
-
-
+            <!-- DAILY SALES -->
+            <a href="/pages/daily-sales.html" class="menu-item">
+                <span>₹</span>
+                Daily Sales
+            </a>
         </nav>
 
-
         <!-- ================= SIDEBAR BOTTOM ================= -->
-
         <div class="sidebar-bottom">
-
-
             <div class="help-box">
-
-                <div class="help-icon">
-                    ?
-                </div>
-
+                <div class="help-icon">?</div>
                 <div>
-
-                    <strong>
-                        Need help?
-                    </strong>
-
-                    <p>
-                        Contact support
-                    </p>
-
+                    <strong>Need help?</strong>
+                    <p>Contact support</p>
                 </div>
-
             </div>
 
+            <!-- ADMIN PROFILE MENU / LOGOUT -->
+            <div class="profile-menu-container">
+                <button type="button"
+                        class="user-box"
+                        id="profileMenuButton"
+                        aria-expanded="false"
+                        aria-controls="profileDropdown"
+                        aria-label="Open administrator menu">
+                    <div class="avatar">A</div>
+                    <div class="user-info">
+                        <strong>Admin</strong>
+                        <span>Administrator</span>
+                    </div>
+                    <span class="more" aria-hidden="true">⋮</span>
+                </button>
 
-            <div class="user-box">
-
-
-                <div class="avatar">
-                    A
+                <div class="profile-dropdown" id="profileDropdown" hidden>
+                    <button type="button" id="logoutButton" class="logout-button">
+                        <span class="logout-icon" aria-hidden="true">↪</span>
+                        <span>Logout</span>
+                    </button>
                 </div>
-
-
-                <div class="user-info">
-
-                    <strong>
-                        Admin
-                    </strong>
-
-                    <span>
-                        Administrator
-                    </span>
-
-                </div>
-
-
-                <span class="more">
-                    ⋮
-                </span>
-
-
             </div>
-
-
         </div>
-
     </aside>
 
 
-
-    <!-- ================= MAIN ================= -->
-
+    <!-- MAIN CONTENT -->
     <main class="main">
 
-
-        <!-- ================= TOP BAR ================= -->
-
+        <!-- TOP BAR -->
         <header class="topbar">
 
-
             <div class="search">
-
-                <span>
-                    ⌕
-                </span>
-
+                <span>⌕</span>
 
                 <input
                         type="text"
                         id="searchInput"
                         placeholder="Search customers..."
-                >
-
+                        autocomplete="off"
+                        aria-label="Search customers">
             </div>
-
 
             <div class="top-actions">
 
-
-                <button class="icon-button">
+                <button
+                        type="button"
+                        class="icon-button"
+                        aria-label="Notifications">
 
                     🔔
-
-                    <span class="notification">
-                    </span>
-
+                    <span class="notification"></span>
                 </button>
 
-
-                <div class="date" id="currentDate">
-
-
-                </div>
+                <div class="date" id="currentDate"></div>
 
             </div>
 
-
         </header>
 
-
-
-        <!-- ================= CONTENT ================= -->
-
+        <!-- PAGE CONTENT -->
         <section class="content">
 
-
             <!-- PAGE HEADER -->
-
             <div class="page-header">
 
-
                 <div>
-
-                    <h1>
-                        Customers
-                    </h1>
-
-                    <p>
-                        Manage your Koli Fish customers
-                    </p>
-
+                    <h1>Customers</h1>
+                    <p>Manage your Koli Fish customers</p>
                 </div>
 
-
                 <button
+                        type="button"
                         class="primary-button"
                         id="addCustomerButton">
 
                     + Add Customer
-
                 </button>
-
 
             </div>
 
-
-
-            <!-- ================= CUSTOMER STATS ================= -->
-
+            <!-- CUSTOMER STATISTICS -->
             <div class="stats-grid customer-stats">
 
-
                 <!-- TOTAL CUSTOMERS -->
-
                 <div class="stat-card">
-
                     <div class="stat-top">
 
                         <div>
-
-                            <span class="stat-title">
-                                Total Customers
-                            </span>
-
-                            <h2 id="totalCustomers">
-                                0
-                            </h2>
-
+                            <span class="stat-title">Total Customers</span>
+                            <h2 id="totalCustomers">0</h2>
                         </div>
 
-
-                        <div class="stat-icon customer">
-                            👥
-                        </div>
+                        <div class="stat-icon customer">👥</div>
 
                     </div>
 
                     <div class="stat-footer">
                         All registered customers
                     </div>
-
                 </div>
 
-
-
                 <!-- ACTIVE CUSTOMERS -->
-
                 <div class="stat-card">
-
                     <div class="stat-top">
 
                         <div>
-
-                            <span class="stat-title">
-                                Active Customers
-                            </span>
-
-                            <h2 id="activeCustomers">
-                                0
-                            </h2>
-
+                            <span class="stat-title">Active Customers</span>
+                            <h2 id="activeCustomers">0</h2>
                         </div>
 
-
-                        <div class="stat-icon product">
-                            ✓
-                        </div>
+                        <div class="stat-icon product">✓</div>
 
                     </div>
 
                     <div class="stat-footer">
                         Currently active
                     </div>
-
                 </div>
 
-
-
                 <!-- AREAS -->
-
                 <div class="stat-card">
-
                     <div class="stat-top">
 
                         <div>
-
-                            <span class="stat-title">
-                                Areas Covered
-                            </span>
-
-                            <h2 id="areaCount">
-                                0
-                            </h2>
-
+                            <span class="stat-title">Areas Covered</span>
+                            <h2 id="areaCount">0</h2>
                         </div>
 
-
-                        <div class="stat-icon sales">
-                            📍
-                        </div>
+                        <div class="stat-icon sales">📍</div>
 
                     </div>
 
                     <div class="stat-footer">
                         Customer locations
                     </div>
-
                 </div>
-
 
             </div>
 
-
-
-            <!-- ================= CUSTOMER TABLE ================= -->
-
+            <!-- CUSTOMER TABLE -->
             <div class="panel">
-
 
                 <div class="panel-header">
 
-
                     <div>
-
-                        <h3>
-                            Customer List
-                        </h3>
-
-                        <p>
-                            View and manage all customers
-                        </p>
-
+                        <h3>Customer List</h3>
+                        <p>View and manage all customers</p>
                     </div>
-
 
                     <div class="table-actions">
 
-
-                        <select id="areaFilter">
-
-                            <option value="">
-                                All Areas
-                            </option>
-
+                        <select id="areaFilter" aria-label="Filter by area">
+                            <option value="">All Areas</option>
                         </select>
-
 
                     </div>
 
-
                 </div>
 
-
-
                 <!-- TABLE -->
-
                 <div class="table-wrapper">
-
 
                     <table>
 
-
                         <thead>
-
                         <tr>
-
-                            <th>
-                                CUSTOMER
-                            </th>
-
-                            <th>
-                                PHONE
-                            </th>
-
-                            <th>
-                                EMAIL
-                            </th>
-
-                            <th>
-                                AREA
-                            </th>
-
-                            <th>
-                                ORDERS
-                            </th>
-
-                            <th>
-                                ACTION
-                            </th>
-
+                            <th>CUSTOMER</th>
+                            <th>PHONE</th>
+                            <th>EMAIL</th>
+                            <th>AREA</th>
+                            <th>ORDERS</th>
+                            <th>ACTION</th>
                         </tr>
-
                         </thead>
-
 
                         <tbody id="customerTable">
 
-
                         <tr>
+                            <td colspan="6" class="empty">
 
-                            <td
-                                    colspan="6"
-                                    class="empty">
+                                <div class="empty-icon">👥</div>
 
-                                <div class="empty-icon">
-                                    👥
-                                </div>
-
-                                <strong>
-                                    No customers yet
-                                </strong>
+                                <strong>No customers yet</strong>
 
                                 <p>
                                     Add your first customer to get started.
                                 </p>
 
                                 <button
+                                        type="button"
                                         class="primary-button empty-button"
                                         id="emptyAddButton">
 
                                     + Add Customer
-
                                 </button>
 
                             </td>
-
                         </tr>
-
 
                         </tbody>
 
-
                     </table>
-
 
                 </div>
 
-
             </div>
-
 
         </section>
 
-
     </main>
-
 
 </div>
 
-
-
-<!-- ================= ADD CUSTOMER MODAL ================= -->
-
-<div
-        class="modal-overlay"
-        id="customerModal">
-
+<!-- ADD CUSTOMER MODAL -->
+<div class="modal-overlay" id="customerModal">
 
     <div class="modal">
 
-
+        <!-- MODAL HEADER -->
         <div class="modal-header">
 
-
             <div>
-
-                <h2>
-                    Add New Customer
-                </h2>
-
-                <p>
-                    Enter customer information
-                </p>
-
+                <h2>Add New Customer</h2>
+                <p>Enter customer information</p>
             </div>
 
-
             <button
+                    type="button"
                     class="modal-close"
                     id="closeModal">
 
                 ×
-
             </button>
-
 
         </div>
 
-
-
+        <!-- CUSTOMER FORM -->
         <form id="customerForm">
-
 
             <div class="form-grid">
 
-
+                <!-- FULL NAME -->
                 <div class="form-group full">
 
-                    <label>
-                        Full Name *
-                    </label>
+                    <label for="customerName">Full Name *</label>
 
                     <input
                             type="text"
                             id="customerName"
                             placeholder="Enter customer name"
-                            required
-                    >
+                            required>
 
                 </div>
 
-
-
+                <!-- MOBILE -->
                 <div class="form-group">
 
-                    <label>
-                        Mobile Number *
-                    </label>
+                    <label for="customerPhone">Mobile Number *</label>
 
                     <input
                             type="tel"
                             id="customerPhone"
                             placeholder="Enter mobile number"
-                            required
-                    >
+                            required>
 
                 </div>
 
-
-
+                <!-- EMAIL -->
                 <div class="form-group">
 
-                    <label>
-                        Email
-                    </label>
+                    <label for="customerEmail">Email</label>
 
                     <input
                             type="email"
                             id="customerEmail"
-                            placeholder="Enter email address"
-                    >
+                            placeholder="Enter email address">
 
                 </div>
 
-
-
+                <!-- ADDRESS -->
                 <div class="form-group full">
 
-                    <label>
-                        Address *
-                    </label>
+                    <label for="customerAddress">Address *</label>
 
                     <textarea
                             id="customerAddress"
                             placeholder="Enter complete address"
                             rows="3"
-                            required>
-                    </textarea>
+                            required></textarea>
 
                 </div>
 
-
-
+                <!-- AREA -->
                 <div class="form-group full">
 
-                    <label>
-                        Area *
-                    </label>
+                    <label for="customerArea">Area *</label>
 
-                    <select
-                            id="customerArea"
-                            required>
+                    <select id="customerArea" required>
 
-                        <option value="">
-                            Select Area
-                        </option>
+                        <option value="">Select Area</option>
 
                     </select>
 
                 </div>
 
-
             </div>
 
-
-
+            <!-- MODAL FOOTER -->
             <div class="modal-footer">
-
 
                 <button
                         type="button"
@@ -675,38 +401,27 @@
                         id="cancelButton">
 
                     Cancel
-
                 </button>
-
 
                 <button
                         type="submit"
                         class="primary-button">
 
                     Save Customer
-
                 </button>
-
 
             </div>
 
-
         </form>
-
 
     </div>
 
-
 </div>
 
-
-
-<!-- ================= JAVASCRIPT ================= -->
-
+<!-- JAVASCRIPT -->
 <script src="../js/customers.js"></script>
 <script src="../js/common.js"></script>
-
+<script src="../js/logout.js"></script>
 
 </body>
-
 </html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Koli Fish | Daily Sales</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/logout.css">
+    <link rel="stylesheet" href="/css/daily-sales.css">
+</head>
+
+<body>
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="sidebar">
+
+        <!-- BRAND -->
+        <div class="brand">
+            <div class="brand-icon">
+                <img src="/images/koli-fish-logo.jpeg" alt="Koli Fish Logo">
+            </div>
+            <div>
+                <h2>KOLI FISH</h2>
+                <span>Management</span>
+            </div>
+        </div>
+
+        <!-- MAIN MENU -->
+        <div class="menu-title">MAIN MENU</div>
+
+        <nav>
+            <a href="/index.html" class="menu-item">
+                <span>▦</span> Dashboard
+            </a>
+
+            <a href="/pages/customers.html" class="menu-item">
+                <span>👥</span> Customers
+            </a>
+
+            <a href="/pages/orders.html" class="menu-item">
+                <span>🧾</span> Orders
+            </a>
+
+            <a href="/pages/products.html" class="menu-item">
+                <span>🐟</span> Products
+            </a>
+
+            <a href="/pages/areas.html" class="menu-item">
+                <span>📍</span> Areas
+            </a>
+
+            <!-- DAILY SALES -->
+            <div class="menu-title">ANALYTICS</div>
+
+            <a href="/pages/daily-sales.html"
+               class="menu-item active"
+               aria-current="page">
+                <span>₹</span> Daily Sales
+            </a>
+        </nav>
+
+        <!-- SIDEBAR BOTTOM -->
+        <div class="sidebar-bottom">
+
+            <div class="help-box">
+                <div class="help-icon">?</div>
+                <div>
+                    <strong>Need help?</strong>
+                    <p>Contact support</p>
+                </div>
+            </div>
+
+            <!-- ADMIN PROFILE AND LOGOUT -->
+            <div class="profile-menu-container">
+
+                <button type="button"
+                        class="user-box"
+                        id="profileMenuButton"
+                        aria-expanded="false"
+                        aria-controls="profileDropdown"
+                        aria-label="Open administrator menu">
+
+                    <div class="avatar">A</div>
+
+                    <div class="user-info">
+                        <strong>Admin</strong>
+                        <span>Administrator</span>
+                    </div>
+
+                    <span class="more" aria-hidden="true">⋮</span>
+                </button>
+
+                <div class="profile-dropdown" id="profileDropdown" hidden>
+                    <button type="button"
+                            id="logoutButton"
+                            class="logout-button">
+                        <span class="logout-icon" aria-hidden="true">↪</span>
+                        <span>Logout</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="main">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+
+            <div class="search">
+                <span>⌕</span>
+                <input type="search"
+                       id="salesSearch"
+                       placeholder="Search order, customer, product..."
+                       aria-label="Search daily sales">
+            </div>
+
+            <div class="top-actions">
+                <button class="icon-button"
+                        type="button"
+                        aria-label="Notifications">
+                    🔔
+                    <span class="notification"></span>
+                </button>
+
+                <div class="date" id="currentDate"></div>
+            </div>
+
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <section class="content">
+
+            <!-- PAGE HEADER -->
+            <div class="page-header">
+                <div>
+                    <h1>Daily Sales</h1>
+                    <p>Sales from completed orders only.</p>
+                </div>
+
+                <div class="daily-sales-date">
+                    <label for="salesDate">Select date</label>
+                    <input type="date" id="salesDate">
+                </div>
+            </div>
+
+            <!-- SALES STATISTICS -->
+            <div class="stats-grid daily-sales-stats">
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div>
+                            <span class="stat-title">Completed Sales</span>
+                            <h2 id="completedSalesTotal">₹0.00</h2>
+                        </div>
+                        <div class="stat-icon sales">₹</div>
+                    </div>
+                    <div class="stat-footer">
+                        Completed orders on selected date
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div>
+                            <span class="stat-title">Completed Orders</span>
+                            <h2 id="completedSalesOrders">0</h2>
+                        </div>
+                        <div class="stat-icon product">✓</div>
+                    </div>
+                    <div class="stat-footer">
+                        Orders marked COMPLETED
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <div>
+                            <span class="stat-title">Average Order Value</span>
+                            <h2 id="averageOrderValue">₹0.00</h2>
+                        </div>
+                        <div class="stat-icon customer">🧾</div>
+                    </div>
+                    <div class="stat-footer">
+                        Sales divided by completed orders
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- COMPLETED ORDERS TABLE -->
+            <div class="panel">
+
+                <div class="panel-header daily-sales-panel-header">
+                    <div>
+                        <h3 id="salesTableTitle">Completed Orders</h3>
+                        <p id="salesTableSubtitle">
+                            Completed orders for the selected date
+                        </p>
+                    </div>
+
+                    <button type="button"
+                            class="secondary-button"
+                            id="exportSalesButton">
+                        Export CSV
+                    </button>
+                </div>
+
+                <div id="salesMessage"
+                     class="sales-message"
+                     role="status"
+                     aria-live="polite"
+                     hidden></div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ORDER</th>
+                            <th>CUSTOMER</th>
+                            <th>PRODUCTS</th>
+                            <th>ORDER DATE</th>
+                            <th>AMOUNT</th>
+                            <th>STATUS</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="dailySalesTable">
+                        <tr>
+                            <td colspan="6" class="empty">
+                                Loading completed orders...
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="daily-sales-pagination">
+                    <span id="salesPaginationInfo">Showing 0 orders</span>
+
+                    <div class="sales-pagination-controls">
+                        <label for="salesPageSize">Rows per page</label>
+
+                        <select id="salesPageSize">
+                            <option value="30" selected>30</option>
+                            <option value="40">40</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+
+                        <button type="button"
+                                id="salesPrevPage"
+                                class="secondary-button"
+                                disabled>
+                            Previous
+                        </button>
+
+                        <span id="salesPageInfo">Page 1 of 1</span>
+
+                        <button type="button"
+                                id="salesNextPage"
+                                class="secondary-button"
+                                disabled>
+                            Next
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+    </main>
+</div>
+
+<!-- JAVASCRIPT -->
+<script src="/js/daily-sales.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/logout.js"></script>
+
+</body>
+</html>
