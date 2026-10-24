@@ -1470,3 +1470,41 @@ td {
         font-size: 9px;
     }
 }
+
+
+/* =========================================================
+   DASHBOARD FOOTER — ALL SCREEN SIZES
+========================================================= */
+
+.main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.main > .content {
+    width: 100%;
+}
+
+.main > .page-footer {
+    width: 100%;
+    margin-top: auto;
+    padding: 16px 20px;
+    background: #1677c8;
+    border-top: 1px solid #1269b2;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.main > .page-footer p {
+    width: 100%;
+    margin: 0;
+    text-align: center;
+    color: #ffffff;
+    font-family: Inter, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+}

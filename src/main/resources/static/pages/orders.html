@@ -1,878 +1,486 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Koli Fish | Orders</title>
 
-    <link rel="stylesheet"
-          href="../css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/logout.css">
 
-    <!-- Logout dropdown styling -->
-    <link rel="stylesheet"
-          href="../css/logout.css">
+    <style>
+        .main {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
+        .main > .content {
+            width: 100%;
+        }
+
+        .main > .page-footer {
+            width: 100%;
+            margin-top: auto;
+            padding: 14px 20px;
+            background: #1677c8;
+            color: #fff;
+            text-align: center;
+        }
+
+        .main > .page-footer p {
+            margin: 0;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .orders-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 14px 18px;
+            border-top: 1px solid #e8eef3;
+            color: #667788;
+            font-size: 13px;
+        }
+
+        .orders-pagination-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .orders-pagination-controls select {
+            padding: 7px 9px;
+            border: 1px solid #d5e0e9;
+            border-radius: 6px;
+            background: #fff;
+            color: #243746;
+        }
+
+        .orders-pagination-controls button {
+            min-height: 32px;
+            padding: 5px 10px;
+        }
+
+        .orders-pagination-controls button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 600px) {
+            .orders-pagination {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .orders-pagination-controls {
+                justify-content: flex-start;
+            }
+        }
+    </style>
 </head>
 
-
 <body>
-
 <div class="app">
 
-
-    <!-- ================= SIDEBAR ================= -->
-
+    <!-- SIDEBAR -->
     <aside class="sidebar">
 
-
         <div class="brand">
-
             <div class="brand-icon">
                 <img src="/images/koli-fish-logo.jpeg" alt="Koli Fish Logo">
             </div>
-
             <div>
-
                 <h2>KOLI FISH</h2>
-
-                <span>
-                    Management
-                </span>
-
+                <span>Management</span>
             </div>
-
         </div>
 
-
-        <div class="menu-title">
-            MAIN MENU
-        </div>
-
+        <div class="menu-title">MAIN MENU</div>
 
         <nav>
-
-
-            <!-- DASHBOARD -->
-
-            <a href="/index.html"
-               class="menu-item">
-
-                <span>▦</span>
-
-                Dashboard
-
+            <a href="/index.html" class="menu-item">
+                <span>▦</span> Dashboard
             </a>
 
-
-            <!-- CUSTOMERS -->
-
-            <a href="/pages/customers.html"
-               class="menu-item">
-
-                <span>👥</span>
-
-                Customers
-
+            <a href="/pages/customers.html" class="menu-item">
+                <span>👥</span> Customers
             </a>
-
-
-            <!-- ORDERS -->
 
             <a href="/pages/orders.html"
-               class="menu-item active">
-
-                <span>🧾</span>
-
-                Orders
-
+               class="menu-item active"
+               aria-current="page">
+                <span>🧾</span> Orders
             </a>
 
-
-            <!-- PRODUCTS -->
-
-            <a href="/pages/products.html"
-               class="menu-item">
-
-                <span>🐟</span>
-
-                Products
-
+            <a href="/pages/products.html" class="menu-item">
+                <span>🐟</span> Products
             </a>
 
-
-            <!-- AREAS -->
-
-            <a href="/pages/areas.html"
-               class="menu-item">
-
-                <span>📍</span>
-
-                Areas
-
+            <a href="/pages/areas.html" class="menu-item">
+                <span>📍</span> Areas
             </a>
 
+            <div class="menu-title">ANALYTICS</div>
 
-            <!-- ANALYTICS -->
-            <div class="menu-title">
-                ANALYTICS
-            </div>
-
-            <!-- DAILY SALES -->
             <a href="/pages/daily-sales.html" class="menu-item">
-                <span>₹</span>
-                Daily Sales
+                <span>₹</span> Daily Sales
             </a>
-
-
         </nav>
 
-
-        <!-- ================= SIDEBAR BOTTOM ================= -->
-
+        <!-- SIDEBAR BOTTOM -->
         <div class="sidebar-bottom">
 
-
             <div class="help-box">
-
-                <div class="help-icon">
-                    ?
-                </div>
-
+                <div class="help-icon">?</div>
                 <div>
-
-                    <strong>
-                        Need help?
-                    </strong>
-
-                    <p>
-                        Contact support
-                    </p>
-
+                    <strong>Need help?</strong>
+                    <p>Contact support</p>
                 </div>
-
             </div>
 
-
-            <!-- ================= ADMIN PROFILE / LOGOUT ================= -->
-
             <div class="profile-menu-container">
-
-                <button
-                        type="button"
+                <button type="button"
                         class="user-box"
                         id="profileMenuButton"
                         aria-expanded="false"
                         aria-controls="profileDropdown"
                         aria-label="Open administrator menu">
-
-                    <div class="avatar">
-                        A
-                    </div>
-
+                    <div class="avatar">A</div>
                     <div class="user-info">
-
-                        <strong>
-                            Admin
-                        </strong>
-
-                        <span>
-                            Administrator
-                        </span>
-
+                        <strong>Admin</strong>
+                        <span>Administrator</span>
                     </div>
-
-                    <span class="more" aria-hidden="true">
-                        ⋮
-                    </span>
-
+                    <span class="more" aria-hidden="true">⋮</span>
                 </button>
 
-
-                <div
-                        class="profile-dropdown"
-                        id="profileDropdown"
-                        hidden>
-
-                    <button
-                            type="button"
+                <div class="profile-dropdown" id="profileDropdown" hidden>
+                    <button type="button"
                             id="logoutButton"
                             class="logout-button">
-
                         <span class="logout-icon" aria-hidden="true">↪</span>
-
-                        <span>
-                            Logout
-                        </span>
-
+                        <span>Logout</span>
                     </button>
-
                 </div>
-
             </div>
-
 
         </div>
-
     </aside>
 
-
-
-    <!-- ================= MAIN ================= -->
-
+    <!-- MAIN CONTENT -->
     <main class="main">
 
-
-        <!-- ================= TOP BAR ================= -->
-
+        <!-- TOP BAR -->
         <header class="topbar">
-
-
             <div class="search">
-
-                <span>
-                    ⌕
-                </span>
-
-
-                <input
-                        type="text"
-                        id="searchInput"
-                        placeholder="Search orders..."
-                >
-
+                <span>⌕</span>
+                <input type="text"
+                       id="searchInput"
+                       placeholder="Search orders..."
+                       autocomplete="off"
+                       aria-label="Search orders">
             </div>
-
 
             <div class="top-actions">
-
-
-                <button type="button" class="icon-button">
-
+                <button type="button"
+                        class="icon-button"
+                        aria-label="Notifications">
                     🔔
-
-                    <span class="notification">
-                    </span>
-
+                    <span class="notification"></span>
                 </button>
 
-
-                <div class="date" id="currentDate">
-
-
-                </div>
-
+                <div class="date" id="currentDate"></div>
             </div>
-
-
         </header>
 
-
-
-        <!-- ================= CONTENT ================= -->
-
+        <!-- PAGE CONTENT -->
         <section class="content">
 
-
-            <!-- PAGE HEADER -->
-
             <div class="page-header">
-
-
                 <div>
-
-                    <h1>
-                        Orders
-                    </h1>
-
-                    <p>
-                        Manage your Koli Fish orders
-                    </p>
-
+                    <h1>Orders</h1>
+                    <p>Manage your Koli Fish orders</p>
                 </div>
 
-
-                <button
-                        type="button"
+                <button type="button"
                         class="primary-button"
                         id="addOrderButton">
-
                     + New Order
-
                 </button>
-
-
             </div>
 
-
-
-            <!-- ================= ORDER STATS ================= -->
-
+            <!-- ORDER STATISTICS -->
             <div class="stats-grid">
 
-
-                <!-- TOTAL ORDERS -->
-
                 <div class="stat-card">
-
                     <div class="stat-top">
-
                         <div>
-
-                            <span class="stat-title">
-                                Total Orders
-                            </span>
-
-                            <h2 id="totalOrders">
-                                0
-                            </h2>
-
+                            <span class="stat-title">Total Orders</span>
+                            <h2 id="totalOrders">0</h2>
                         </div>
-
-
-                        <div class="stat-icon order">
-                            🧾
-                        </div>
-
+                        <div class="stat-icon order">🧾</div>
                     </div>
-
-
-                    <div class="stat-footer">
-                        All orders
-                    </div>
-
+                    <div class="stat-footer">All orders</div>
                 </div>
 
-
-
-                <!-- PENDING ORDERS -->
-
                 <div class="stat-card">
-
                     <div class="stat-top">
-
                         <div>
-
-                            <span class="stat-title">
-                                Pending Orders
-                            </span>
-
-                            <h2 id="pendingOrders">
-                                0
-                            </h2>
-
+                            <span class="stat-title">Pending Orders</span>
+                            <h2 id="pendingOrders">0</h2>
                         </div>
-
-
-                        <div class="stat-icon sales">
-                            ⏳
-                        </div>
-
+                        <div class="stat-icon sales">⏳</div>
                     </div>
-
-
-                    <div class="stat-footer">
-                        Orders to process
-                    </div>
-
+                    <div class="stat-footer">Orders to process</div>
                 </div>
 
-
-
-                <!-- COMPLETED ORDERS -->
-
                 <div class="stat-card">
-
                     <div class="stat-top">
-
                         <div>
-
-                            <span class="stat-title">
-                                Completed Orders
-                            </span>
-
-                            <h2 id="completedOrders">
-                                0
-                            </h2>
-
+                            <span class="stat-title">Completed Orders</span>
+                            <h2 id="completedOrders">0</h2>
                         </div>
-
-
-                        <div class="stat-icon product">
-                            ✓
-                        </div>
-
+                        <div class="stat-icon product">✓</div>
                     </div>
-
-
-                    <div class="stat-footer">
-                        Successfully delivered
-                    </div>
-
+                    <div class="stat-footer">Successfully delivered</div>
                 </div>
 
-
-
-                <!-- TOTAL SALES -->
-
                 <div class="stat-card">
-
                     <div class="stat-top">
-
                         <div>
-
-                            <span class="stat-title">
-                                Total Sales
-                            </span>
-
-                            <h2 id="totalSales">
-                                ₹0
-                            </h2>
-
+                            <span class="stat-title">Total Sales</span>
+                            <h2 id="totalSales">₹0</h2>
                         </div>
-
-
-                        <div class="stat-icon sales">
-                            ₹
-                        </div>
-
+                        <div class="stat-icon sales">₹</div>
                     </div>
-
-
-                    <div class="stat-footer">
-                        Order revenue
-                    </div>
-
+                    <div class="stat-footer">Order revenue</div>
                 </div>
-
 
             </div>
 
-
-
-            <!-- ================= ORDER TABLE ================= -->
-
+            <!-- ORDER TABLE -->
             <div class="panel">
 
-
                 <div class="panel-header">
-
-
                     <div>
-
-                        <h3>
-                            Order List
-                        </h3>
-
-                        <p>
-                            View and manage all customer orders
-                        </p>
-
+                        <h3>Order List</h3>
+                        <p>View and manage all customer orders</p>
                     </div>
-
 
                     <div class="table-actions">
-
-
-                        <select id="statusFilter">
-
-                            <option value="">
-                                All Status
-                            </option>
-
-                            <option value="PENDING">
-                                Pending
-                            </option>
-
-                            <option value="PROCESSING">
-                                Processing
-                            </option>
-
-                            <option value="COMPLETED">
-                                Completed
-                            </option>
-
-                            <option value="CANCELLED">
-                                Cancelled
-                            </option>
-
+                        <select id="statusFilter"
+                                aria-label="Filter orders by status">
+                            <option value="">All Status</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="PROCESSING">Processing</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELLED">Cancelled</option>
                         </select>
-
-
                     </div>
-
-
                 </div>
-
-
-
-                <!-- TABLE -->
 
                 <div class="table-wrapper">
-
-
                     <table>
-
-
                         <thead>
-
                         <tr>
-
-                            <th>
-                                ORDER
-                            </th>
-
-                            <th>
-                                CUSTOMER
-                            </th>
-
-                            <th>
-                                DATE
-                            </th>
-
-                            <th>
-                                ITEMS
-                            </th>
-
-                            <th>
-                                TOTAL
-                            </th>
-
-                            <th>
-                                STATUS
-                            </th>
-
-                            <th>
-                                ACTION
-                            </th>
-
+                            <th>ORDER</th>
+                            <th>CUSTOMER</th>
+                            <th>DATE</th>
+                            <th>ITEMS</th>
+                            <th>TOTAL</th>
+                            <th>STATUS</th>
+                            <th>ACTION</th>
                         </tr>
-
                         </thead>
 
-
                         <tbody id="orderTable">
-
-
                         <tr>
-
-                            <td
-                                    colspan="7"
-                                    class="empty">
-
-                                <div class="empty-icon">
-                                    🧾
-                                </div>
-
-                                <strong>
-                                    No orders yet
-                                </strong>
-
-                                <p>
-                                    Create your first order to get started.
-                                </p>
-
-                                <button
-                                        type="button"
-                                        class="primary-button empty-button"
-                                        id="emptyOrderButton">
-
-                                    + New Order
-
-                                </button>
-
+                            <td colspan="7" class="empty">
+                                <div class="empty-icon">🧾</div>
+                                <strong>Loading orders...</strong>
                             </td>
-
                         </tr>
-
-
                         </tbody>
-
-
                     </table>
-
-
                 </div>
 
+                <!-- PAGINATION -->
+                <div class="orders-pagination">
+                    <span id="ordersPaginationInfo">
+                        Showing 0 orders
+                    </span>
+
+                    <div class="orders-pagination-controls">
+                        <label for="ordersPageSize">Rows per page</label>
+
+                        <select id="ordersPageSize">
+                            <option value="30" selected>30</option>
+                            <option value="40">40</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+
+                        <button type="button"
+                                class="secondary-button"
+                                id="ordersFirstPage"
+                                disabled>
+                            First
+                        </button>
+
+                        <button type="button"
+                                class="secondary-button"
+                                id="ordersPrevPage"
+                                disabled>
+                            ‹
+                        </button>
+
+                        <span id="ordersPageInfo">Page 1 of 1</span>
+
+                        <button type="button"
+                                class="secondary-button"
+                                id="ordersNextPage"
+                                disabled>
+                            ›
+                        </button>
+
+                        <button type="button"
+                                class="secondary-button"
+                                id="ordersLastPage"
+                                disabled>
+                            Last
+                        </button>
+                    </div>
+                </div>
 
             </div>
-
 
         </section>
 
+        <!-- FOOTER -->
+        <footer class="page-footer">
+            <p>Designed & Developed by Vikram © 2026. All Rights Reserved.</p>
+        </footer>
 
     </main>
-
-
 </div>
 
-
-
-<!-- ================= ADD ORDER MODAL ================= -->
-
-<div
-        class="modal-overlay"
-        id="orderModal">
-
-
+<!-- ADD / EDIT ORDER MODAL -->
+<div class="modal-overlay" id="orderModal">
     <div class="modal">
 
-
         <div class="modal-header">
-
-
             <div>
-
-                <h2>
-                    Create New Order
-                </h2>
-
-                <p>
-                    Enter order information
-                </p>
-
+                <h2>Create New Order</h2>
+                <p>Enter order information</p>
             </div>
 
-
-            <button
-                    type="button"
+            <button type="button"
                     class="modal-close"
-                    id="closeOrderModal">
-
+                    id="closeOrderModal"
+                    aria-label="Close order form">
                 ×
-
             </button>
-
-
         </div>
-
-
 
         <form id="orderForm">
 
-
             <div class="form-grid">
 
-
                 <!-- CUSTOMER -->
-
                 <div class="form-group full">
-
-                    <label for="orderCustomer">
-                        Customer *
-                    </label>
-
-                    <select
-                            id="orderCustomer"
-                            required>
-
-                        <option value="">
-                            Select Customer
-                        </option>
-
+                    <label for="orderCustomer">Customer *</label>
+                    <select id="orderCustomer" required>
+                        <option value="">Select Customer</option>
                     </select>
-
                 </div>
-
-
 
                 <!-- ORDER DATE -->
-
                 <div class="form-group">
-
-                    <label for="orderDate">
-                        Order Date *
-                    </label>
-
-                    <input
-                            type="date"
-                            id="orderDate"
-                            required>
-
+                    <label for="orderDate">Order Date *</label>
+                    <input type="date" id="orderDate" required>
                 </div>
-
-
 
                 <!-- STATUS -->
-
                 <div class="form-group">
-
-                    <label for="orderStatus">
-                        Status *
-                    </label>
-
-                    <select
-                            id="orderStatus"
-                            required>
-
-                        <option value="PENDING">
-                            Pending
-                        </option>
-
-                        <option value="PROCESSING">
-                            Processing
-                        </option>
-
-                        <option value="COMPLETED">
-                            Completed
-                        </option>
-
-                        <option value="CANCELLED">
-                            Cancelled
-                        </option>
-
+                    <label for="orderStatus">Status *</label>
+                    <select id="orderStatus" required>
+                        <option value="PENDING">Pending</option>
+                        <option value="PROCESSING">Processing</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
                     </select>
-
                 </div>
 
-
-
-                <!-- ================= ORDER ITEMS ================= -->
-
+                <!-- ORDER ITEMS -->
                 <div class="form-group full">
-
-                    <label>
-                        Order Items *
-                    </label>
-
+                    <label for="orderProduct">Order Items *</label>
 
                     <div class="order-item-entry">
-
-
-                        <!-- PRODUCT -->
-
                         <select id="orderProduct">
-
-                            <option value="">
-                                Select Product
-                            </option>
-
+                            <option value="">Select Product</option>
                         </select>
 
+                        <input type="number"
+                               id="orderQuantity"
+                               placeholder="Enter quantity"
+                               min="0.1"
+                               step="0.1">
 
-
-                        <!-- QUANTITY -->
-
-                        <input
-                                type="number"
-                                id="orderQuantity"
-                                placeholder="Enter quantity"
-                                min="0.1"
-                                step="0.1">
-
-
-
-                        <!-- ADD FISH -->
-
-                        <button
-                                type="button"
+                        <button type="button"
                                 class="primary-button"
                                 id="addOrderItemButton">
-
                             + Add Fish
-
                         </button>
-
-
                     </div>
 
-
-                    <!-- SELECTED PRODUCTS -->
-
                     <div id="orderItemsList"></div>
-
-
                 </div>
-
-
 
                 <!-- TOTAL -->
-
                 <div class="form-group">
-
-                    <label for="orderTotal">
-                        Total
-                    </label>
-
-                    <input
-                            type="number"
-                            id="orderTotal"
-                            value="0.00"
-                            readonly>
-
+                    <label for="orderTotal">Total</label>
+                    <input type="number"
+                           id="orderTotal"
+                           value="0.00"
+                           readonly>
                 </div>
-
-
 
                 <!-- NOTES -->
-
                 <div class="form-group full">
-
-                    <label for="orderNotes">
-                        Notes
-                    </label>
-
-                    <textarea
-                            id="orderNotes"
-                            placeholder="Add order notes"
-                            rows="3"></textarea>
-
+                    <label for="orderNotes">Notes</label>
+                    <textarea id="orderNotes"
+                              placeholder="Add order notes"
+                              rows="3"></textarea>
                 </div>
 
-
             </div>
-
-
 
             <div class="modal-footer">
-
-
-                <button
-                        type="button"
+                <button type="button"
                         class="secondary-button"
                         id="cancelOrderButton">
-
                     Cancel
-
                 </button>
 
-
-                <button
-                        type="submit"
-                        class="primary-button">
-
+                <button type="submit" class="primary-button">
                     Save Order
-
                 </button>
-
-
             </div>
 
-
         </form>
-
-
     </div>
-
-
 </div>
 
-
-
-<!-- ================= JAVASCRIPT ================= -->
-
-<script src="../js/orders.js"></script>
-
-<script src="../js/common.js"></script>
-
-<!-- Admin dropdown and secure logout -->
-<script src="../js/logout.js"></script>
-
+<!-- JAVASCRIPT -->
+<script src="/js/orders.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/logout.js"></script>
 
 </body>
-
 </html>
